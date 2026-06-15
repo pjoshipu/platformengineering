@@ -5,21 +5,18 @@ import {
   Shield,
   Users,
   LogOut,
-  UserCog,
-  Settings
+  UserCog
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import DemoRunner from "@/components/DemoRunner";
 import ProfileManagementDialog from "@/components/ProfileManagementDialog";
-import ApiKeySettings from "@/components/ApiKeySettings";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AdminView = () => {
   const { user, logout } = useAuth();
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const demos = [
     {
@@ -84,10 +81,6 @@ const AdminView = () => {
                 <UserCog className="w-4 h-4 mr-2" />
                 Manage Profiles
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
-                <Settings className="w-4 h-4 mr-2" />
-                API Settings
-              </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -129,12 +122,6 @@ const AdminView = () => {
       <ProfileManagementDialog
         open={isProfileDialogOpen}
         onOpenChange={setIsProfileDialogOpen}
-      />
-
-      {/* API Key Settings */}
-      <ApiKeySettings
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
       />
 
       {/* Footer */}

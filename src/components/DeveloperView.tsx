@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { Bot, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Bot, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DemoRunner from "@/components/DemoRunner";
-import ApiKeySettings from "@/components/ApiKeySettings";
 import Footer from "@/components/Footer";
 import { useAuth, DeveloperUser } from "@/contexts/AuthContext";
 
 const DeveloperView = () => {
   const { user, logout } = useAuth();
   const developerUser = user as DeveloperUser;
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const demo = {
     id: "developer-portal",
@@ -44,10 +42,6 @@ const DeveloperView = () => {
                 <UserIcon className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">Developer Access</span>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
-                <Settings className="w-4 h-4 mr-2" />
-                API Settings
-              </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -76,12 +70,6 @@ const DeveloperView = () => {
           developerProfileId={developerUser.profileId}
         />
       </section>
-
-      {/* API Key Settings */}
-      <ApiKeySettings
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-      />
 
       {/* Footer */}
       <Footer />

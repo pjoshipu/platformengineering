@@ -89,7 +89,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const isDeveloper = userRole === 'developer';
   const isAdmin = userRole === 'admin';
 
-  const apiKey = localStorage.getItem('anthropic_api_key') || import.meta.env.VITE_ANTHROPIC_API_KEY || "";
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || "";
   const endpoint = getClaudeApiEndpoint();
   const supabaseConfigured = Boolean(
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
