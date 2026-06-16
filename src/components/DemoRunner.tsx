@@ -66,14 +66,43 @@ const generateUUID = (): string => {
   });
 };
 
-const getClaudeApiEndpoint = () => {
+const getAgentEndpoint = (agentId: string) => {
+  // Map agent IDs to their Supabase Edge Function endpoints
+  const agentEndpoints: Record<string, string> = {
+    "developer-onboarding": "/functions/v1/developer-onboarding",
+    "feature-flag-lifecycle": "/functions/v1/feature-flag-lifecycle",
+    "security-posture": "/functions/v1/security-posture",
+    "cost-optimization": "/functions/v1/cost-optimization",
+    "incident-response": "/functions/v1/incident-response"
+  };
+
+  // For new agents, use Supabase Edge Functions
+  if (agentEndpoints[agentId]) {
+    return {
+      type: "edge-function",
+      url: agentEndpoints[agentId]
+    };
+  }
+
+  // For existing agents, use OpenAI API
   if (import.meta.env.VITE_OPENAI_PROXY_URL) {
-    return import.meta.env.VITE_OPENAI_PROXY_URL;
+    return {
+      type: "openai-api",
+      url: import.meta.env.VITE_OPENAI_PROXY_URL
+    };
   }
+
   if (import.meta.env.DEV) {
-    return "/openai/v1/chat/completions";
+    return {
+      type: "openai-api",
+      url: "/openai/v1/chat/completions"
+    };
   }
-  return "https://api.openai.com/v1/chat/completions";
+
+  return {
+    type: "openai-api",
+    url: "https://api.openai.com/v1/chat/completions"
+  };
 };
 
 const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: DemoRunnerProps) => {
@@ -90,7 +119,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const isAdmin = userRole === 'admin';
 
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
-  const endpoint = getClaudeApiEndpoint();
+  const endpointConfig = getAgentEndpoint(demo.id);
   const supabaseConfigured = Boolean(
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
   );
@@ -274,67 +303,94 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
     const trimmedKey = apiKey.trim();
 
     setOutput([
-      `🤖 AI Copilot activated...`,
-      `📡 Connecting to AI...`
+      `🤖 AI Agent activated...`,
+      `📡 Connecting to agent...`
     ]);
 
     try {
       const payload = dynamicPayload;
+      const isEdgeFunction = endpointConfig.type === "edge-function";
 
-      console.log('[debug] endpoint:', endpoint);
+      console.log('[debug] endpoint config:', endpointConfig);
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${trimmedKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: CLAUDE_MODEL,
-          max_tokens: 2048,
-          messages: [{ role: 'user', content: generatePromptForDemo(demo.id, payload) }],
-        }),
-      });
+      let response: Response;
+      let responseData: any;
+
+      if (isEdgeFunction) {
+        // Call Supabase Edge Function
+        response = await fetch(endpointConfig.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${trimmedKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        // Call OpenAI API
+        response = await fetch(endpointConfig.url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${trimmedKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: CLAUDE_MODEL,
+            max_tokens: 2048,
+            messages: [{ role: 'user', content: generatePromptForDemo(demo.id, payload) }],
+          }),
+        });
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Claude API error:', response.status, errorText);
+        console.error('Agent error:', response.status, errorText);
 
         if (response.status === 429) {
           toast.error('Rate limit exceeded');
           setOutput(prev => [...prev, '❌ <error>Error: Rate limit exceeded</error>']);
         } else if (response.status === 401) {
           toast.error('Invalid API key');
-          setOutput(prev => [...prev, `❌ <error>Error: Invalid API key (${response.status})</error>`, `📋 Anthropic says: ${errorText}`]);
+          setOutput(prev => [...prev, `❌ <error>Error: Invalid API key (${response.status})</error>`, `📋 Response: ${errorText}`]);
         } else {
-          toast.error('Claude API error');
+          toast.error('Agent error');
           setOutput(prev => [...prev, `❌ <error>Error (${response.status}): ${errorText}</error>`]);
         }
         setIsRunning(false);
         return;
       }
 
-      const data = await response.json();
-      const result = data.choices?.[0]?.message?.content || 'No response generated';
-      
+      responseData = await response.json();
+
+      // Extract result based on endpoint type
+      let result: string;
+      if (isEdgeFunction) {
+        // Edge Function returns structured data
+        result = JSON.stringify(responseData, null, 2);
+      } else {
+        // OpenAI API returns choice with message content
+        result = responseData.choices?.[0]?.message?.content || 'No response generated';
+      }
+
       const outputData = {
         result,
         model_used: CLAUDE_MODEL,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ...responseData
       };
 
       // Save the run
       await saveRun(outputData, payload, 'local');
-      
+
       setOutput(prev => [...prev, `✓ <success>Analysis complete!</success>`, `🤖 Model: ${CLAUDE_MODEL_LABEL}`, ``, result]);
-      toast.success("Demo completed and saved!");
+      toast.success("Agent execution completed and saved!");
 
     } catch (error) {
-      console.error('Error running local demo:', error);
+      console.error('Error running agent:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       if (errorMessage.includes('Failed to fetch')) {
-        toast.error('Browser could not reach OpenAI. Run through the dev proxy or provide VITE_OPENAI_PROXY_URL.');
-        setOutput(prev => [...prev, '❌ <error>Network error: browser cannot call OpenAI directly. Run `npm run dev` (which adds a proxy) or configure VITE_OPENAI_PROXY_URL to a server-side proxy.</error>']);
+        toast.error('Browser could not reach agent. Check your network and API configuration.');
+        setOutput(prev => [...prev, '❌ <error>Network error: Could not connect to agent. Check VITE_OPENAI_API_KEY and proxy configuration.</error>']);
       } else {
         toast.error('An unexpected error occurred');
         setOutput(prev => [...prev, `❌ <error>Unexpected error: ${errorMessage}</error>`]);

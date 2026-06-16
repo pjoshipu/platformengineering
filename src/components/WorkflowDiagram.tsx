@@ -193,6 +193,290 @@ const WorkflowDiagram = ({ demoId }: WorkflowDiagramProps) => {
         "📈 Impact: 10x faster onboarding, zero wait time",
         "💡 Smart: Debugging, how-tos, best practices, code review"
       ]
+    },
+    "developer-onboarding": {
+      title: "Developer Onboarding Agent Flow",
+      diagram: `graph TD
+    A[👤 New Hire Starts] -->|Profile Submitted| B[🤖 Onboarding Agent]
+    B -->|Analyze| C{Experience Level}
+
+    C -->|Junior| D[14-day Ramp Plan]
+    C -->|Intermediate| E[7-day Ramp Plan]
+    C -->|Senior| F[5-day Ramp Plan]
+
+    D --> G[Personalized Checklist]
+    E --> G
+    F --> G
+
+    G -->|Generate| H[Learning Resources]
+    H -->|Curate| I[Docs by Tech Stack]
+    H -->|Recommend| J[Pairing Sessions]
+    H -->|Schedule| K[Key Stakeholder Meetings]
+
+    I --> L[🧠 AI Processing]
+    J --> L
+    K --> L
+
+    L -->|Output| M[Onboarding Plan]
+    M --> N[First Week Agenda]
+    M --> O[Success Metrics]
+    M --> P[Mentor Assignment]
+
+    N --> Q[Developer Follows Plan]
+    O --> Q
+    P --> Q
+
+    Q -->|Track| R[Day 1-2: Setup]
+    Q -->|Track| S[Day 3-5: Core Systems]
+    Q -->|Track| T[Day 6-7: First Task]
+
+    R --> U[✅ Ready to Contribute]
+    S --> U
+    T --> U
+
+    style B fill:#4ade80,color:#0f172a
+    style G fill:#60a5fa,color:#0f172a
+    style M fill:#8b5cf6,color:#0f172a
+    style Q fill:#fbbf24,color:#0f172a
+
+    V[❌ Before: 30 days to productivity] -.->|vs| W[✅ After: 5-14 days personalized ramp]`,
+      legend: [
+        "🟢 Green: Automatic plan generation",
+        "🔵 Blue: AI-curated resources by profile",
+        "🟣 Purple: Personalized onboarding output",
+        "🟡 Yellow: Developer execution",
+        "⏱️ Impact: 2-6x faster time to productivity"
+      ]
+    },
+    "feature-flag-lifecycle": {
+      title: "Feature Flag Lifecycle Agent Flow",
+      diagram: `graph TD
+    A[Feature Flags Inventory] -->|Input| B[🤖 Flag Lifecycle Agent]
+    B -->|Scan| C[Analyze All Flags]
+
+    C -->|Age Check| D[Stale Candidates<br/>90+ days old]
+    C -->|Usage Check| E[Access Patterns]
+    C -->|Duplication| F[v1/v2 Duplicates]
+
+    D --> G[🧠 Evaluate Risks]
+    E --> G
+    F --> G
+
+    G -->|Decision| H{Recommendation}
+
+    H -->|Safe to Remove| I[❌ Remove Flag]
+    H -->|Needs Refresh| J[🔄 Refresh Owner]
+    H -->|Archive| K[📦 Archive Flag]
+
+    I --> L[Generate Cleanup Plan]
+    J --> L
+    K --> L
+
+    L -->|Organize| M[Phase 1: Low Risk]
+    L -->|Organize| N[Phase 2: Medium Risk]
+    L -->|Organize| O[Phase 3: High Risk]
+
+    M --> P[👥 Notify Owners]
+    N --> P
+    O --> P
+
+    P -->|Execute| Q[Code Cleanup]
+    Q -->|Verify| R[Regression Tests]
+    R -->|Confirm| S[✅ Flags Cleaned]
+
+    style B fill:#4ade80,color:#0f172a
+    style G fill:#60a5fa,color:#0f172a
+    style H fill:#8b5cf6,color:#0f172a
+    style P fill:#fbbf24,color:#0f172a
+
+    T[❌ Before: Stale flags slow down codebase] -.->|vs| U[✅ After: Clean, efficient flag management]`,
+      legend: [
+        "🟢 Green: Automatic flag scanning",
+        "🔵 Blue: AI risk assessment",
+        "🟣 Purple: Intelligent recommendations",
+        "🟡 Yellow: Phased cleanup execution",
+        "🧹 Impact: Technical debt elimination"
+      ]
+    },
+    "security-posture": {
+      title: "Security Posture Agent Flow",
+      diagram: `graph TD
+    A[Security Scan Results] -->|Input| B[🤖 Security Agent]
+
+    B -->|Scan CVEs| C[CVE Database Analysis]
+    B -->|Scan Secrets| D[Secret Detection]
+    B -->|Scan IaC| E[Infrastructure Drift Check]
+
+    C -->|Grade| F[CVSS Scoring]
+    D -->|Assess| G[Exposure Type]
+    E -->|Detect| H[Configuration Deviations]
+
+    F --> I[🧠 Threat Assessment]
+    G --> I
+    H --> I
+
+    I -->|Evaluate| J[Calculate Exposure Score]
+    J -->|Prioritize| K{Severity Level}
+
+    K -->|Critical| L[🚨 Immediate Action Required]
+    K -->|High| M[⚠️ High Priority]
+    K -->|Medium| N[📋 Medium Priority]
+    K -->|Low| O[✓ Monitor]
+
+    L --> P[Generate Fix Approach]
+    M --> P
+    N --> P
+    O --> P
+
+    P -->|Output| Q[Remediation Plan]
+    Q -->|Specify| R[Timeline & Resources]
+    Q -->|Identify| S[Automation Opportunities]
+
+    R --> T[👥 Notify Security Team]
+    S --> T
+
+    T -->|Execute| U[Apply Patches]
+    U -->|Rotate| V[Refresh Secrets]
+    V -->|Sync| W[Reconcile IaC]
+
+    W -->|Verify| X[✅ Compliance Restored]
+
+    style B fill:#4ade80,color:#0f172a
+    style I fill:#60a5fa,color:#0f172a
+    style J fill:#8b5cf6,color:#0f172a
+    style P fill:#fbbf24,color:#0f172a
+
+    Y[❌ Before: Manual security reviews, slow response] -.->|vs| Z[✅ After: Automated scanning, instant prioritization]`,
+      legend: [
+        "🟢 Green: Automated threat scanning",
+        "🔵 Blue: Risk assessment & scoring",
+        "🟣 Purple: Intelligent prioritization",
+        "🟡 Yellow: Remediation planning",
+        "🛡️ Impact: Faster vulnerability patching"
+      ]
+    },
+    "cost-optimization": {
+      title: "Cost Optimization Agent Flow",
+      diagram: `graph TD
+    A[Infrastructure Metrics] -->|Input| B[🤖 Cost Agent]
+
+    B -->|Analyze| C[Compute Utilization]
+    B -->|Analyze| D[Database Usage]
+    B -->|Analyze| E[Storage Consumption]
+    B -->|Analyze| F[Network Costs]
+
+    C --> G[🧠 Opportunity Analysis]
+    D --> G
+    E --> G
+    F --> G
+
+    G -->|Compare| H[Actual vs Baseline]
+    H -->|Identify| I[Underutilized Resources]
+    H -->|Identify| J[Oversized Instances]
+    H -->|Identify| J[Reserved Instance Gaps]
+
+    I --> K[Estimate Savings]
+    J --> K
+
+    K -->|Prioritize| L{Recommendation Type}
+
+    L -->|Downsize| M[Reduce Instance Size]
+    L -->|Consolidate| N[Merge Underutilized]
+    L -->|Reserved| O[Reserved Instance Strategy]
+    L -->|Spot| P[Use Spot Instances]
+
+    M --> Q[Calculate Monthly Savings]
+    N --> Q
+    O --> Q
+    P --> Q
+
+    Q -->|Organize| R[Phase Implementation Plan]
+    R -->|Risk Assess| S[Reliability Impact]
+
+    S -->|Output| T[Recommendations Report]
+    T --> U[Cost Savings Potential]
+    T --> V[Risk Assessment]
+    T --> W[Implementation Timeline]
+
+    U --> X[👥 Present to Finance]
+    V --> X
+    W --> X
+
+    X -->|Approve| Y[Execute Changes]
+    Y -->|Monitor| Z[✅ Cost Reduced]
+
+    style B fill:#4ade80,color:#0f172a
+    style G fill:#60a5fa,color:#0f172a
+    style L fill:#8b5cf6,color:#0f172a
+    style T fill:#fbbf24,color:#0f172a
+
+    AA[❌ Before: Infrastructure costs drift upward] -.->|vs| AB[✅ After: Continuous optimization, 20-40% savings]`,
+      legend: [
+        "🟢 Green: Automated resource analysis",
+        "🔵 Blue: Opportunity identification",
+        "🟣 Purple: Recommendation engine",
+        "🟡 Yellow: Implementation planning",
+        "💰 Impact: Significant cost savings with low risk"
+      ]
+    },
+    "incident-response": {
+      title: "Incident Response Agent Flow",
+      diagram: `graph TD
+    A[🚨 Incident Detected] -->|Alert Triggered| B[🤖 Response Agent]
+
+    B -->|Classify| C[Assess Severity]
+    C -->|Impact| D[Service Availability]
+    C -->|Scope| E[Affected Users]
+    C -->|Duration| F[Estimated Duration]
+
+    D --> G[🧠 Classification Engine]
+    E --> G
+    F --> G
+
+    G -->|Determine| H{Severity Level}
+
+    H -->|Down| I[🚨 P1: Critical]
+    H -->|Degraded| J[⚠️ P2: High]
+    H -->|Minor| K[📋 P3: Medium]
+    H -->|Trivial| L[✓ P4: Low]
+
+    I --> M[Immediate Escalation]
+    J --> M
+    K --> M
+    L --> M
+
+    M -->|Correlate| N[Check Recent Deployments]
+    N -->|Analyze| O[Find Deployment Window]
+    O -->|Link| P[Identify Likely Cause]
+
+    P -->|Generate| Q[Incident Response Plan]
+    Q -->|Create| R[ServiceNow Ticket]
+    Q -->|Alert| S[Notify On-Call Team]
+
+    R --> T[👥 Assign Incident Commander]
+    S --> T
+
+    T -->|Execute| U[Immediate Actions]
+    U -->|Mitigate| V[Reduce Impact]
+    V -->|Root Cause| W[Investigate Root Cause]
+    W -->|Fix| X[Deploy Resolution]
+
+    X -->|Verify| Y[Monitor for Stability]
+    Y -->|Post-incident| Z[✅ Incident Resolved]
+
+    style B fill:#4ade80,color:#0f172a
+    style G fill:#60a5fa,color:#0f172a
+    style H fill:#8b5cf6,color:#0f172a
+    style Q fill:#fbbf24,color:#0f172a
+
+    AA[❌ Before: Manual triage, 30+ min MTTR] -.->|vs| AB[✅ After: AI classification, 5 min response]`,
+      legend: [
+        "🟢 Green: Automated incident detection",
+        "🔵 Blue: Severity classification",
+        "🟣 Purple: Root cause correlation",
+        "🟡 Yellow: Response coordination",
+        "⏱️ Impact: Reduced MTTR by 80%"
+      ]
     }
   };
 
