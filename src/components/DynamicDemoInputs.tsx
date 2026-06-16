@@ -171,6 +171,34 @@ const DynamicDemoInputs = ({ demoId, onPayloadChange, developerProfileId }: Dyna
   const [s3Cost, setS3Cost] = useState("28");
   const [uptimeSla, setUptimeSla] = useState("99.9");
 
+  // Developer Onboarding State
+  const [onboardName, setOnboardName] = useState("Alex Chen");
+  const [onboardTeam, setOnboardTeam] = useState("platform");
+  const [onboardExp, setOnboardExp] = useState("intermediate");
+  const [onboardBg, setOnboardBg] = useState("AWS, Terraform, Kubernetes");
+  const [onboardStart, setOnboardStart] = useState("2026-01-20");
+
+  // Feature Flag Lifecycle State
+  const [flagCount, setFlagCount] = useState("25");
+  const [staleThreshold, setStaleThreshold] = useState("90");
+  const [flagSamples, setFlagSamples] = useState("new_checkout, v2_ui_legacy, dark_mode, beta_api");
+
+  // Security Posture State
+  const [cveCount, setCveCount] = useState("3");
+  const [criticalCves, setCriticalCves] = useState("1");
+  const [secretsFound, setSecretsFound] = useState("2");
+  const [iacDrift, setIacDrift] = useState("true");
+
+  // Incident Response State
+  const [incidentDesc, setIncidentDesc] = useState("API service returning 502 errors");
+  const [affectedServices, setAffectedServices] = useState("api-gateway, user-service, auth-service");
+  const [errorRate, setErrorRate] = useState("45");
+
+  // Cost Optimization State
+  const [costCompute, setCostCompute] = useState("m5.2xlarge (25% util)");
+  const [costMonthly, setCostMonthly] = useState("280");
+  const [costDb, setCostDb] = useState("db.r5.large (45% util)");
+
   // Update payload whenever inputs change
   const updatePayload = (demoType: string) => {
     let payload: any = {};
@@ -274,6 +302,66 @@ Last successful run: ${wfLastSuccess}`,
           }
         };
         break;
+
+      case "developer-onboarding":
+        payload = {
+          name: onboardName,
+          team: onboardTeam,
+          experience_level: onboardExp,
+          prev_background: onboardBg,
+          start_date: onboardStart
+        };
+        break;
+
+      case "feature-flag-lifecycle":
+        payload = {
+          flags_inventory: flagSamples.split(',').map((f, i) => ({
+            flag_name: f.trim(),
+            age_days: 90 + (i * 30),
+            last_accessed: new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000)).toISOString(),
+            owner_team: "platform"
+          })),
+          age_threshold_days: parseInt(staleThreshold)
+        };
+        break;
+
+      case "security-posture":
+        payload = {
+          cves: [
+            { id: "CVE-2025-1234", cvss_score: 9.1, affected_version: "2.3.0" }
+          ],
+          secrets_found_count: parseInt(secretsFound),
+          iac_drift: iacDrift === "true",
+          compliance_requirements: ["SOC2", "HIPAA"]
+        };
+        break;
+
+      case "incident-response":
+        payload = {
+          description: incidentDesc,
+          affected_services: affectedServices.split(',').map(s => s.trim()),
+          detected_time: new Date().toISOString(),
+          error_rate: parseFloat(errorRate),
+          recent_deployments: [
+            { service: "api-gateway", version: "2.1.0", deploy_time: new Date(Date.now() - 10 * 60 * 1000).toISOString() }
+          ]
+        };
+        break;
+
+      case "cost-optimization":
+        payload = {
+          compute_resources: [
+            { instance: costCompute, utilization: "25%", cost_monthly: parseInt(costMonthly) },
+            { instance: costDb, utilization: "45%", cost_monthly: 360 }
+          ],
+          utilization_metrics: {
+            cpu_avg: 25,
+            memory_avg: 35,
+            network_avg: 15
+          },
+          period_days: 30
+        };
+        break;
     }
 
     onPayloadChange(payload);
@@ -284,20 +372,30 @@ Last successful run: ${wfLastSuccess}`,
     updatePayload(demoId);
   }, [
     demoId,
-    selectedProfile, // Profile selection affects workflow-diagnostic and developer-portal
-    // Developer Portal dependencies
+    selectedProfile,
+    // Developer Portal
     devName, devExperience, devTeam, devTechStack, devRole, devQuery,
-    // Workflow Diagnostic dependencies
+    // Workflow Diagnostic
     errorLog, wfRepository, wfBranch, wfTrigger, wfEnvironment, wfLastSuccess,
-    // Release Readiness dependencies
+    // Release Readiness
     testCoverage, avgResponseTime, p95ResponseTime, p99ResponseTime,
     criticalVulns, highVulns, mediumVulns, maintainabilityScore,
     techDebtHours, codeSmells, successRate, rollbackCount,
-    // Multi-Agent dependencies
+    // Multi-Agent
     compute1Type, compute1Util, compute1Region, compute1Cost, compute1Purpose,
     compute2Type, compute2Util, compute2Region, compute2Cost, compute2Purpose,
     dbType, dbConnections, dbCapacity, dbCost, dbUtil,
-    s3Usage, s3Cost, uptimeSla
+    s3Usage, s3Cost, uptimeSla,
+    // Developer Onboarding
+    onboardName, onboardTeam, onboardExp, onboardBg, onboardStart,
+    // Feature Flag Lifecycle
+    flagCount, staleThreshold, flagSamples,
+    // Security Posture
+    cveCount, criticalCves, secretsFound, iacDrift,
+    // Incident Response
+    incidentDesc, affectedServices, errorRate,
+    // Cost Optimization
+    costCompute, costMonthly, costDb
   ]);
 
   // Reset to defaults ONLY when demo actually changes (not when just switching tabs)
@@ -1090,6 +1188,141 @@ Last successful run: ${wfLastSuccess}`,
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (demoId === "developer-onboarding") {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm mb-3">👤 Developer Onboarding</h4>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="onboard-name">Name</Label>
+            <Input id="onboard-name" value={onboardName} onChange={(e) => handleInputChange(setOnboardName, e.target.value)} placeholder="Developer name" />
+          </div>
+          <div>
+            <Label htmlFor="onboard-team">Team</Label>
+            <Input id="onboard-team" value={onboardTeam} onChange={(e) => handleInputChange(setOnboardTeam, e.target.value)} placeholder="e.g., platform" />
+          </div>
+          <div>
+            <Label htmlFor="onboard-exp">Experience Level</Label>
+            <Select value={onboardExp} onValueChange={(val) => handleInputChange(setOnboardExp, val)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="junior">Junior</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="senior">Senior</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="onboard-start">Start Date</Label>
+            <Input id="onboard-start" type="date" value={onboardStart} onChange={(e) => handleInputChange(setOnboardStart, e.target.value)} />
+          </div>
+          <div className="md:col-span-2">
+            <Label htmlFor="onboard-bg">Previous Background</Label>
+            <Input id="onboard-bg" value={onboardBg} onChange={(e) => handleInputChange(setOnboardBg, e.target.value)} placeholder="e.g., AWS, Terraform" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (demoId === "feature-flag-lifecycle") {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm mb-3">🚩 Feature Flag Lifecycle</h4>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="flag-count">Total Flags</Label>
+            <Input id="flag-count" type="number" value={flagCount} onChange={(e) => handleInputChange(setFlagCount, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="stale-threshold">Stale Threshold (days)</Label>
+            <Input id="stale-threshold" type="number" value={staleThreshold} onChange={(e) => handleInputChange(setStaleThreshold, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="flag-samples">Sample Flag Names (comma-separated)</Label>
+            <Textarea id="flag-samples" value={flagSamples} onChange={(e) => handleInputChange(setFlagSamples, e.target.value)} placeholder="Flag1, Flag2, Flag3" rows={3} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (demoId === "security-posture") {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm mb-3">🛡️ Security Posture</h4>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="cve-count">Total CVEs</Label>
+            <Input id="cve-count" type="number" value={cveCount} onChange={(e) => handleInputChange(setCveCount, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="critical-cves">Critical CVEs</Label>
+            <Input id="critical-cves" type="number" value={criticalCves} onChange={(e) => handleInputChange(setCriticalCves, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="secrets-found">Secrets Found</Label>
+            <Input id="secrets-found" type="number" value={secretsFound} onChange={(e) => handleInputChange(setSecretsFound, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="iac-drift">IaC Drift</Label>
+            <Select value={iacDrift} onValueChange={(val) => handleInputChange(setIacDrift, val)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Detected</SelectItem>
+                <SelectItem value="false">None</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (demoId === "incident-response") {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm mb-3">🚨 Incident Response</h4>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="incident-desc">Incident Description</Label>
+            <Textarea id="incident-desc" value={incidentDesc} onChange={(e) => handleInputChange(setIncidentDesc, e.target.value)} placeholder="Describe the incident..." rows={3} />
+          </div>
+          <div>
+            <Label htmlFor="affected-services">Affected Services (comma-separated)</Label>
+            <Input id="affected-services" value={affectedServices} onChange={(e) => handleInputChange(setAffectedServices, e.target.value)} placeholder="service1, service2" />
+          </div>
+          <div>
+            <Label htmlFor="error-rate">Error Rate (%)</Label>
+            <Input id="error-rate" type="number" step="0.1" value={errorRate} onChange={(e) => handleInputChange(setErrorRate, e.target.value)} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (demoId === "cost-optimization") {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm mb-3">💰 Cost Optimization</h4>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="cost-compute">Compute Resource</Label>
+            <Input id="cost-compute" value={costCompute} onChange={(e) => handleInputChange(setCostCompute, e.target.value)} placeholder="e.g., m5.2xlarge (25% util)" />
+          </div>
+          <div>
+            <Label htmlFor="cost-monthly">Monthly Cost ($)</Label>
+            <Input id="cost-monthly" type="number" value={costMonthly} onChange={(e) => handleInputChange(setCostMonthly, e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="cost-db">Database</Label>
+            <Input id="cost-db" value={costDb} onChange={(e) => handleInputChange(setCostDb, e.target.value)} placeholder="e.g., db.r5.large (45% util)" />
           </div>
         </div>
       </div>

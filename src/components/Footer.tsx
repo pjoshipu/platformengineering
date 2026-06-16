@@ -8,16 +8,10 @@ const Footer = () => {
           <div className="text-sm text-muted-foreground italic">
             <span>This project is a learning demonstration</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-            <span>Inspired by the amazing course and materials from</span>
-          </div>
-          <div className="text-primary font-semibold">
-            Ajay Chankramath
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-3">
             <span>Built with</span>
             <Heart className="w-3 h-3 fill-red-500 text-red-500" />
-            <span>using React + Claude AI</span>
+            <span>using React + OpenAI</span>
           </div>
           <div className="text-xs text-muted-foreground mt-2">
             © {new Date().getFullYear()} Internal Developer Platform. All rights reserved.

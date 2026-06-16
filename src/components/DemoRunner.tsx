@@ -50,8 +50,8 @@ interface DemoRunnerProps {
   developerProfileId?: string;
 }
 
-const CLAUDE_MODEL = "claude-3-haiku-20240307";
-const CLAUDE_MODEL_LABEL = "Claude 3 Haiku";
+const CLAUDE_MODEL = "gpt-4o-mini";
+const CLAUDE_MODEL_LABEL = "GPT-4o Mini";
 
 // Fallback UUID generator for environments where crypto.randomUUID is not available
 const generateUUID = (): string => {
@@ -67,13 +67,13 @@ const generateUUID = (): string => {
 };
 
 const getClaudeApiEndpoint = () => {
-  if (import.meta.env.VITE_ANTHROPIC_PROXY_URL) {
-    return import.meta.env.VITE_ANTHROPIC_PROXY_URL;
+  if (import.meta.env.VITE_OPENAI_PROXY_URL) {
+    return import.meta.env.VITE_OPENAI_PROXY_URL;
   }
   if (import.meta.env.DEV) {
-    return "/anthropic/v1/messages";
+    return "/openai/v1/chat/completions";
   }
-  return "https://api.anthropic.com/v1/messages";
+  return "https://api.openai.com/v1/chat/completions";
 };
 
 const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: DemoRunnerProps) => {
@@ -89,7 +89,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const isDeveloper = userRole === 'developer';
   const isAdmin = userRole === 'admin';
 
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || "";
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
   const endpoint = getClaudeApiEndpoint();
   const supabaseConfigured = Boolean(
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -266,7 +266,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const runDemo = async () => {
     setSelectedRun(null);
     if (!apiKey) {
-      toast.error("API key not configured. Please set VITE_ANTHROPIC_API_KEY in your .env file.");
+      toast.error("API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.");
       return;
     }
 
@@ -286,9 +286,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'x-api-key': trimmedKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
+          'Authorization': `Bearer ${trimmedKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -317,7 +315,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
       }
 
       const data = await response.json();
-      const result = data.content?.[0]?.text || 'No response generated';
+      const result = data.choices?.[0]?.message?.content || 'No response generated';
       
       const outputData = {
         result,
@@ -335,8 +333,8 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
       console.error('Error running local demo:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       if (errorMessage.includes('Failed to fetch')) {
-        toast.error('Browser could not reach Claude. Run through the dev proxy or provide VITE_ANTHROPIC_PROXY_URL.');
-        setOutput(prev => [...prev, '❌ <error>Network error: browser cannot call Claude directly. Run `npm run dev` (which adds a proxy) or configure VITE_ANTHROPIC_PROXY_URL to a server-side proxy.</error>']);
+        toast.error('Browser could not reach OpenAI. Run through the dev proxy or provide VITE_OPENAI_PROXY_URL.');
+        setOutput(prev => [...prev, '❌ <error>Network error: browser cannot call OpenAI directly. Run `npm run dev` (which adds a proxy) or configure VITE_OPENAI_PROXY_URL to a server-side proxy.</error>']);
       } else {
         toast.error('An unexpected error occurred');
         setOutput(prev => [...prev, `❌ <error>Unexpected error: ${errorMessage}</error>`]);

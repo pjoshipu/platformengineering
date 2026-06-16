@@ -1,0 +1,29 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "Internal Developer Platform" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Sign in to continue
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - text: Select Role
+          - combobox "Select Role" [ref=e11] [cursor=pointer]:
+            - generic: Choose your role...
+            - img [ref=e12]
+        - button "Sign In" [disabled]:
+          - img
+          - text: Sign In
+      - paragraph [ref=e15]: Demo environment - No actual authentication required
+    - contentinfo [ref=e16]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: This project is a learning demonstration
+        - generic [ref=e21]: Inspired by the amazing course and materials from
+        - generic [ref=e22]: Ajay Chankramath
+        - generic [ref=e23]:
+          - generic [ref=e24]: Built with
+          - img [ref=e25]
+          - generic [ref=e27]: using React + Claude AI
+        - generic [ref=e28]: © 2026 Internal Developer Platform. All rights reserved.

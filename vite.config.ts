@@ -18,11 +18,11 @@ export default defineConfig(async ({ mode }) => {
       host: "::",
       port: 8080,
       proxy: {
-        "/anthropic": {
-          target: "https://api.anthropic.com",
+        "/openai": {
+          target: "https://api.openai.com",
           changeOrigin: true,
           secure: true,
-          rewrite: (requestPath) => requestPath.replace(/^\/anthropic/, ""),
+          rewrite: (requestPath) => requestPath.replace(/^\/openai/, ""),
         },
       },
     },
