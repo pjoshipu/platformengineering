@@ -69,18 +69,32 @@ const generateUUID = (): string => {
 const getAgentEndpoint = (agentId: string) => {
   // Map agent IDs to their Supabase Edge Function endpoints
   const agentEndpoints: Record<string, string> = {
-    "developer-onboarding": "/functions/v1/developer-onboarding",
-    "feature-flag-lifecycle": "/functions/v1/feature-flag-lifecycle",
-    "security-posture": "/functions/v1/security-posture",
-    "cost-optimization": "/functions/v1/cost-optimization",
-    "incident-response": "/functions/v1/incident-response"
+    "developer-onboarding": "developer-onboarding",
+    "feature-flag-lifecycle": "feature-flag-lifecycle",
+    "security-posture": "security-posture",
+    "cost-optimization": "cost-optimization",
+    "incident-response": "incident-response"
   };
 
-  // For new agents, use Supabase Edge Functions
-  if (agentEndpoints[agentId]) {
+  // Get Supabase base URL for Edge Functions
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_FUNCTIONS_BASE_URL ||
+                      import.meta.env.VITE_SUPABASE_URL;
+
+  // For new agents, use Supabase Edge Functions if available
+  if (agentEndpoints[agentId] && supabaseUrl) {
     return {
       type: "edge-function",
-      url: agentEndpoints[agentId]
+      url: `${supabaseUrl}/functions/v1/${agentEndpoints[agentId]}`
+    };
+  }
+
+  // Fallback: For new agents without Supabase, use OpenAI-based approach
+  // (This is a workaround until Edge Functions are deployed)
+  if (agentEndpoints[agentId]) {
+    return {
+      type: "openai-api",
+      url: import.meta.env.VITE_OPENAI_PROXY_URL ||
+           (import.meta.env.DEV ? "/openai/v1/chat/completions" : "https://api.openai.com/v1/chat/completions")
     };
   }
 
@@ -820,6 +834,102 @@ Provide:
 3. Next steps as a task list
 
 Do not mention or reference any AI model names like Gemini in your response.`;
+
+    case "developer-onboarding":
+      return `You are a developer onboarding specialist. Create a personalized onboarding plan.
+
+New Hire Profile:
+- Name: ${payload.name}
+- Team: ${payload.team}
+- Experience Level: ${payload.experience_level}
+- Previous Background: ${payload.prev_background || 'Not provided'}
+- Start Date: ${payload.start_date || 'TBD'}
+
+Create:
+1. Personalized checklist by task (adjust timeline for ${payload.experience_level} level)
+2. Key resources ranked by relevance
+3. First week day-by-day agenda
+4. Success metrics
+5. Mentor assignment if available
+6. Estimated ramp time in days
+
+Format as JSON with checklist, resources, agenda, metrics, mentor, and ramp_time.`;
+
+    case "feature-flag-lifecycle":
+      return `You are a feature flag hygiene expert. Analyze the flags inventory.
+
+Flags (${payload.flags_inventory?.length || 0} total):
+${JSON.stringify(payload.flags_inventory, null, 2)}
+
+Stale Threshold: ${payload.age_threshold_days || 90} days
+
+Provide:
+1. Stale flags with age, last accessed, recommendation (remove/refresh/archive)
+2. Hygiene violations (duplicates, cross-team ownership)
+3. Cleanup plan with phases and timeline
+
+Format as JSON with stale_flags array, hygiene_violations array, and cleanup_plan.`;
+
+    case "security-posture":
+      return `You are a security expert. Assess security posture.
+
+CVEs:
+${JSON.stringify(payload.cves || [], null, 2)}
+
+Secrets Found: ${payload.secrets_found_count || 0}
+IaC Drift: ${payload.iac_drift ? 'Detected' : 'None'}
+Compliance: ${payload.compliance_requirements?.join(', ') || 'Not specified'}
+
+Provide:
+1. Vulnerability summary with critical/high counts
+2. Prioritized actions with timelines
+3. Secrets remediation steps
+4. IaC drift assessment
+5. Compliance status
+
+Format as JSON with vulnerability_summary, prioritized_actions array, secrets_found, iac_drift, and compliance_status.`;
+
+    case "cost-optimization":
+      return `You are a cloud cost optimization expert. Analyze infrastructure costs.
+
+Compute Resources:
+${JSON.stringify(payload.compute_resources || [], null, 2)}
+
+Utilization Metrics (last ${payload.period_days || 30} days):
+${JSON.stringify(payload.utilization_metrics || {}, null, 2)}
+
+Provide:
+1. Current monthly spend estimate
+2. Wasted spend from underutilization
+3. Optimization potential percentage
+4. Top 3-5 recommendations with monthly savings
+5. Rightsizing plan with phases
+6. Reserved instance strategy
+
+Format as JSON with cost_analysis, recommendations array, rightsizing_plan, and reserved_instance_strategy.`;
+
+    case "incident-response":
+      return `You are an incident response specialist. Classify and respond to incident.
+
+Incident:
+- Description: ${payload.description}
+- Affected Services: ${payload.affected_services?.join(', ') || 'Unknown'}
+- Detected: ${payload.detected_time || 'Now'}
+- Error Rate: ${payload.error_rate || 'Unknown'}%
+
+Recent Deployments:
+${JSON.stringify(payload.recent_deployments || [], null, 2)}
+
+Provide:
+1. Severity classification (P1/P2/P3/P4)
+2. Confidence score for classification
+3. Likely root cause with confidence
+4. Linked deployment if within 15 min
+5. Immediate actions (first 15 min)
+6. ServiceNow ticket template
+7. Escalation path and communication template
+
+Format as JSON with classification, likely_root_cause, immediate_actions, servicenow_ticket, escalation_path, and communication_template.`;
 
     default:
       return "";
