@@ -5,7 +5,10 @@ import {
   Shield,
   Users,
   LogOut,
-  UserCog
+  UserCog,
+  Flag,
+  DollarSign,
+  AlertTriangle
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -20,44 +23,84 @@ const AdminView = () => {
 
   const demos = [
     {
-      id: "developer-portal",
-      title: "Developer Portal Agent",
-      description: "AI-driven onboarding and self-service endpoint that understands developer needs and provides intelligent guidance.",
-      icon: Shield,
+      id: "developer-onboarding",
+      title: "Developer Onboarding",
+      description: "Persona-specific checklist for new hires that accelerates ramp time from days to hours.",
+      icon: Users,
       color: "tech-orange",
-      problem: "Manual onboarding and documentation hunts slow developer productivity",
-      solution: "Conversational AI provides personalized onboarding and context-aware help",
-      pythonFile: "section4_developer_portal.py",
+      problem: "Manual onboarding checklists are generic and time-consuming",
+      solution: "AI generates personalized plans based on experience level and background",
+      pythonFile: "section1_onboarding.py",
     },
     {
       id: "workflow-diagnostic",
-      title: "Workflow Diagnostic Agent",
+      title: "CI/CD Diagnostic",
       description: "Automatically diagnoses failed CI/CD workflows and provides root cause analysis with suggested fixes.",
       icon: Terminal,
       color: "primary",
       problem: "Cryptic error messages in failed workflows waste developer time",
       solution: "Agent analyzes logs, context, and provides actionable explanations",
-      pythonFile: "section1_diagnostic_agent.py",
+      pythonFile: "section2_diagnostic.py",
     },
     {
       id: "release-readiness",
-      title: "Release Readiness Agent",
+      title: "Release Readiness",
       description: "Evaluates quality gates (test coverage, performance, security) to make intelligent release/rollback decisions.",
       icon: GitBranch,
       color: "tech-cyan",
       problem: "Binary pass/fail gates don't capture nuanced deployment risks",
       solution: "Contextual evaluation with confidence scores and full rationale",
-      pythonFile: "section2_release_readiness.py",
+      pythonFile: "section3_release_readiness.py",
     },
     {
-      id: "multi-agent",
-      title: "Multi-Agent Orchestration",
-      description: "Cost optimizer and incident responder agents coordinate to balance efficiency with reliability.",
-      icon: Users,
+      id: "feature-flag-lifecycle",
+      title: "Feature Flags",
+      description: "Detect stale flags, enforce hygiene, recommend cleanup and consolidation.",
+      icon: Flag,
       color: "accent",
-      problem: "Siloed optimization leads to cost overruns or service degradation",
-      solution: "Specialized agents communicate and resolve conflicts intelligently",
-      pythonFile: "section3_multi_agent.py",
+      problem: "Stale feature flags accumulate technical debt and create confusion",
+      solution: "Agent identifies cleanup opportunities and prevents flag sprawl",
+      pythonFile: "section4_feature_flags.py",
+    },
+    {
+      id: "security-posture",
+      title: "Security Posture",
+      description: "CVE triage, secret scanning, IaC drift detection with prioritized remediation.",
+      icon: Shield,
+      color: "destructive",
+      problem: "Manual security reviews are slow and miss context-specific risks",
+      solution: "Automated scanning with intelligent prioritization and recommendations",
+      pythonFile: "section5_security.py",
+    },
+    {
+      id: "cost-optimization",
+      title: "Cost Optimization",
+      description: "Identify underutilized resources, recommend rightsizing with savings estimates.",
+      icon: DollarSign,
+      color: "green",
+      problem: "Infrastructure costs drift upward without continuous optimization",
+      solution: "Agent finds rightsizing opportunities and quantifies savings",
+      pythonFile: "section6_cost.py",
+    },
+    {
+      id: "incident-response",
+      title: "Incident Response",
+      description: "P1-P4 classification, deployment correlation, ServiceNow ticket pre-fill.",
+      icon: AlertTriangle,
+      color: "destructive",
+      problem: "Manual incident triage slows response time and misses context",
+      solution: "Automated classification with deployment correlation and escalation",
+      pythonFile: "section7_incident.py",
+    },
+    {
+      id: "developer-portal",
+      title: "Developer Portal",
+      description: "AI-driven self-service endpoint that understands developer needs and provides guidance.",
+      icon: Users,
+      color: "tech-orange",
+      problem: "Manual documentation hunts slow developer productivity",
+      solution: "Conversational AI provides personalized context-aware help",
+      pythonFile: "section8_developer_portal.py",
     },
   ];
 
@@ -97,9 +140,9 @@ const AdminView = () => {
         </div>
 
         <Tabs value={selectedDemo} onValueChange={setSelectedDemo} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 overflow-y-auto">
             {demos.map((demo) => (
-              <TabsTrigger key={demo.id} value={demo.id}>
+              <TabsTrigger key={demo.id} value={demo.id} className="text-xs">
                 {demo.title}
               </TabsTrigger>
             ))}
