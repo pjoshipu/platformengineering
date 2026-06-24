@@ -66,181 +66,7 @@ const generateUUID = (): string => {
   });
 };
 
-const formatResponseAsHtml = (agentId: string, rawResponse: string): string => {
-  try {
-    const data = JSON.parse(rawResponse);
-
-    switch (agentId) {
-      case "developer-onboarding":
-        return `
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-green-700">Onboarding Plan</h3>
-            <div class="bg-blue-50 p-3 rounded">
-              <h4 class="font-semibold">Estimated Ramp Time: <span class="text-blue-700">${data.estimated_ramp_time_days || 'N/A'} days</span></h4>
-            </div>
-            ${data.onboarding_checklist ? `
-              <div>
-                <h4 class="font-semibold mb-2">Checklist:</h4>
-                <ul class="list-disc pl-5 space-y-1">
-                  ${data.onboarding_checklist.slice(0, 10).map((item: any) =>
-                    `<li><span class="font-medium">${item.task}</span> <span class="text-gray-600">(${item.estimated_days}d)</span></li>`
-                  ).join('')}
-                </ul>
-              </div>
-            ` : ''}
-            ${data.success_metrics ? `
-              <div>
-                <h4 class="font-semibold mb-2">Success Metrics:</h4>
-                <ul class="list-disc pl-5 space-y-1">
-                  ${data.success_metrics.slice(0, 5).map((m: string) => `<li>${m}</li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-      case "feature-flag-lifecycle":
-        return `
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-amber-700">Flag Lifecycle Analysis</h3>
-            <div class="bg-red-50 p-3 rounded">
-              <h4 class="font-semibold">Stale Flags Found: <span class="text-red-700">${data.total_stale_flags || 0}</span></h4>
-            </div>
-            ${data.stale_flags ? `
-              <div>
-                <h4 class="font-semibold mb-2">Stale Flags:</h4>
-                <div class="space-y-2">
-                  ${data.stale_flags.slice(0, 5).map((flag: any) => `
-                    <div class="border-l-4 border-amber-500 pl-3 py-2">
-                      <p><strong>${flag.flag_id}</strong> <span class="text-gray-600">(${flag.age_days} days old)</span></p>
-                      <p class="text-sm">Recommendation: <span class="font-medium ${flag.recommendation === 'remove' ? 'text-red-600' : 'text-amber-600'}">${flag.recommendation}</span></p>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-      case "security-posture":
-        return `
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-red-700">Security Posture</h3>
-            ${data.vulnerability_summary ? `
-              <div class="grid grid-cols-2 gap-2">
-                <div class="bg-red-50 p-3 rounded">
-                  <p class="text-sm font-semibold">Critical</p>
-                  <p class="text-2xl font-bold text-red-700">${data.vulnerability_summary.critical_unpatched || 0}</p>
-                </div>
-                <div class="bg-orange-50 p-3 rounded">
-                  <p class="text-sm font-semibold">High Risk</p>
-                  <p class="text-2xl font-bold text-orange-700">${data.vulnerability_summary.high_risk_items || 0}</p>
-                </div>
-              </div>
-            ` : ''}
-            ${data.overall_risk_level ? `
-              <div class="p-3 rounded ${data.overall_risk_level === 'critical' ? 'bg-red-100' : 'bg-orange-100'}">
-                <p class="font-semibold">Risk Level: <span class="text-red-700 font-bold">${data.overall_risk_level.toUpperCase()}</span></p>
-              </div>
-            ` : ''}
-            ${data.prioritized_actions ? `
-              <div>
-                <h4 class="font-semibold mb-2">Top Actions:</h4>
-                <ol class="list-decimal pl-5 space-y-1">
-                  ${data.prioritized_actions.slice(0, 3).map((action: any) =>
-                    `<li><span class="font-medium">${action.severity.toUpperCase()}</span>: ${action.fix_approach}</li>`
-                  ).join('')}
-                </ol>
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-      case "cost-optimization":
-        return `
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-green-700">Cost Analysis</h3>
-            ${data.cost_analysis ? `
-              <div class="grid grid-cols-3 gap-2">
-                <div class="bg-blue-50 p-3 rounded">
-                  <p class="text-sm font-semibold">Current Spend</p>
-                  <p class="text-xl font-bold text-blue-700">$${data.cost_analysis.current_monthly_spend || 0}/mo</p>
-                </div>
-                <div class="bg-red-50 p-3 rounded">
-                  <p class="text-sm font-semibold">Wasted</p>
-                  <p class="text-xl font-bold text-red-700">$${data.cost_analysis.wasted_spend_estimate || 0}/mo</p>
-                </div>
-                <div class="bg-green-50 p-3 rounded">
-                  <p class="text-sm font-semibold">Potential Savings</p>
-                  <p class="text-xl font-bold text-green-700">${data.cost_analysis.optimization_potential_percent || 0}%</p>
-                </div>
-              </div>
-            ` : ''}
-            ${data.recommendations ? `
-              <div>
-                <h4 class="font-semibold mb-2">Top Recommendations:</h4>
-                <div class="space-y-2">
-                  ${data.recommendations.slice(0, 3).map((rec: any) => `
-                    <div class="border-l-4 border-green-500 pl-3 py-2">
-                      <p><strong>${rec.resource_id}</strong></p>
-                      <p class="text-sm">Savings: <span class="font-bold text-green-600">$${rec.monthly_savings}/mo</span></p>
-                      <p class="text-sm">Risk: <span class="text-${rec.risk_level === 'low' ? 'green' : rec.risk_level === 'medium' ? 'amber' : 'red'}-600">${rec.risk_level}</span></p>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-      case "incident-response":
-        return `
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-purple-700">Incident Classification</h3>
-            ${data.classification ? `
-              <div class="p-3 rounded ${
-                data.classification.severity === 'P1' ? 'bg-red-100' :
-                data.classification.severity === 'P2' ? 'bg-orange-100' :
-                data.classification.severity === 'P3' ? 'bg-yellow-100' : 'bg-blue-100'
-              }">
-                <p class="text-2xl font-bold ${
-                  data.classification.severity === 'P1' ? 'text-red-700' :
-                  data.classification.severity === 'P2' ? 'text-orange-700' :
-                  data.classification.severity === 'P3' ? 'text-yellow-700' : 'text-blue-700'
-                }">
-                  ${data.classification.severity}
-                </p>
-                <p class="text-sm">Confidence: ${data.classification.confidence_score}%</p>
-              </div>
-            ` : ''}
-            ${data.likely_root_cause ? `
-              <div class="bg-gray-50 p-3 rounded">
-                <h4 class="font-semibold mb-2">Likely Root Cause:</h4>
-                <p>${data.likely_root_cause.cause || 'Analysis in progress'}</p>
-                <p class="text-sm text-gray-600">Confidence: ${data.likely_root_cause.confidence || 0}%</p>
-                ${data.likely_root_cause.linked_deployment ? `
-                  <p class="text-sm mt-2"><span class="font-semibold">Linked Deployment:</span> ${data.likely_root_cause.linked_deployment}</p>
-                ` : ''}
-              </div>
-            ` : ''}
-            ${data.immediate_actions ? `
-              <div>
-                <h4 class="font-semibold mb-2">Immediate Actions:</h4>
-                <ol class="list-decimal pl-5 space-y-1">
-                  ${data.immediate_actions.slice(0, 4).map((action: string) => `<li class="text-sm">${action}</li>`).join('')}
-                </ol>
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-      default:
-        return `<pre class="bg-gray-50 p-3 rounded text-sm overflow-auto">${JSON.stringify(data, null, 2)}</pre>`;
-    }
-  } catch (e) {
-    return `<pre class="bg-gray-50 p-3 rounded text-sm overflow-auto">${rawResponse}</pre>`;
-  }
-};
+// Removed HTML formatting - keeping plain text output only
 
 const getAgentEndpoint = (agentId: string) => {
   // Map agent IDs to their Supabase Edge Function endpoints
@@ -297,8 +123,8 @@ const getAgentEndpoint = (agentId: string) => {
 
 const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: DemoRunnerProps) => {
   const [isRunning, setIsRunning] = useState(false);
-  const [agentOutputs, setAgentOutputs] = useState<Record<string, { raw: string; html: string }>>({});
-  const [viewMode, setViewMode] = useState<"raw" | "formatted">("raw");
+  const [agentOutputs, setAgentOutputs] = useState<Record<string, string>>({});
+  const [output, setOutput] = useState<string[]>([]);
   const [previousRuns, setPreviousRuns] = useState<DemoRun[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [selectedRun, setSelectedRun] = useState<DemoRun | null>(null);
@@ -306,7 +132,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const [searchQuery, setSearchQuery] = useState("");
 
   // Get current agent's output
-  const currentOutput = agentOutputs[demo.id] || { raw: "", html: "" };
+  const currentOutput = agentOutputs[demo.id] || "";
 
   const isDeveloper = userRole === 'developer';
   const isAdmin = userRole === 'admin';
@@ -497,10 +323,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
 
     setAgentOutputs(prev => ({
       ...prev,
-      [demo.id]: {
-        raw: "🤖 AI Agent activated...\n📡 Connecting to agent...",
-        html: "<p>🤖 AI Agent activated...</p><p>📡 Connecting to agent...</p>"
-      }
+      [demo.id]: "🤖 AI Agent activated...\n📡 Connecting to agent..."
     }));
 
     try {
@@ -550,10 +373,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
 
         setAgentOutputs(prev => ({
           ...prev,
-          [demo.id]: {
-            raw: errorMsg,
-            html: `<div class="bg-red-50 p-4 rounded text-red-700"><strong>❌ ${errorMsg}</strong></div>`
-          }
+          [demo.id]: errorMsg
         }));
 
         if (response.status === 429) toast.error('Rate limit exceeded');
@@ -586,15 +406,9 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
       // Save the run
       await saveRun(outputData, payload, 'local');
 
-      // Format result as HTML
-      const htmlResult = formatResponseAsHtml(demo.id, result);
-
       setAgentOutputs(prev => ({
         ...prev,
-        [demo.id]: {
-          raw: result,
-          html: htmlResult
-        }
+        [demo.id]: result
       }));
 
       toast.success("Agent execution completed and saved!");
@@ -608,10 +422,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
 
       setAgentOutputs(prev => ({
         ...prev,
-        [demo.id]: {
-          raw: errorMsg,
-          html: `<div class="bg-red-50 p-4 rounded text-red-700"><strong>❌ ${errorMsg}</strong></div>`
-        }
+        [demo.id]: errorMsg
       }));
 
       toast.error('An error occurred');
@@ -782,22 +593,6 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
                 </h3>
                 <div className="flex gap-2">
                   <Button
-                    variant={viewMode === "raw" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("raw")}
-                  >
-                    <Code className="w-4 h-4 mr-1" />
-                    Raw
-                  </Button>
-                  <Button
-                    variant={viewMode === "formatted" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("formatted")}
-                  >
-                    <FileText className="w-4 h-4 mr-1" />
-                    Formatted
-                  </Button>
-                  <Button
                     variant="destructive"
                     size="sm"
                     onClick={clearOutput}
@@ -807,35 +602,17 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
                   </Button>
                 </div>
               </div>
-              
-              {viewMode === "raw" ? (
-                <div className="bg-secondary rounded-lg p-4 font-mono text-sm space-y-1 max-h-[60vh] overflow-y-auto">
-                  {output.map((line, index) => (
-                    <div 
-                      key={index} 
-                      className="whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ 
-                        __html: line
-                          .replace(/<error>(.*?)<\/error>/g, '<span class="text-destructive font-bold">$1</span>')
-                          .replace(/<success>(.*?)<\/success>/g, '<span class="text-success font-bold">$1</span>')
-                          .replace(/<warning>(.*?)<\/warning>/g, '<span class="text-warning font-bold">$1</span>')
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-slate-50 dark:bg-slate-900 border rounded-lg p-6 max-h-[60vh] overflow-y-auto">
-                  <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-slate-100 prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-strong:text-slate-900 dark:prose-strong:text-slate-100 prose-li:text-slate-700 dark:prose-li:text-slate-300 prose-code:bg-slate-200 prose-code:text-slate-900 dark:prose-code:bg-slate-700 dark:prose-code:text-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-200 dark:prose-pre:bg-slate-800 prose-pre:text-slate-900 dark:prose-pre:text-slate-100">
-                    <ReactMarkdown>
-                      {output
-                        .join('\n')
-                        .replace(/<error>(.*?)<\/error>/g, '**❌ Error: $1**')
-                        .replace(/<success>(.*?)<\/success>/g, '**✅ $1**')
-                        .replace(/<warning>(.*?)<\/warning>/g, '**⚠️ $1**')}
-                    </ReactMarkdown>
+
+              <div className="bg-secondary rounded-lg p-4 font-mono text-sm space-y-1 max-h-[60vh] overflow-y-auto">
+                {output.map((line, index) => (
+                  <div
+                    key={index}
+                    className="whitespace-pre-wrap"
+                  >
+                    {line}
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </Card>
           )}
         </TabsContent>
@@ -891,54 +668,30 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
           </Card>
 
           {/* Output Section - Agent Specific */}
-          {currentOutput.raw && (
+          {currentOutput && (
             <Card className="p-6 border-2 border-primary/20">
-              <div className="flex items-center justify-between mb-4 sticky top-0 bg-card z-10 pb-2">
+              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold flex items-center">
                   <Terminal className="w-5 h-5 mr-2 text-primary" />
                   {demo.title} Results
                 </h3>
-                <div className="flex gap-2">
-                  <Button
-                    variant={viewMode === "raw" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("raw")}
-                  >
-                    <Code className="w-4 h-4 mr-1" />
-                    Raw
-                  </Button>
-                  <Button
-                    variant={viewMode === "formatted" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("formatted")}
-                  >
-                    <FileText className="w-4 h-4 mr-1" />
-                    Formatted
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setAgentOutputs(prev => {
-                      const updated = { ...prev };
-                      delete updated[demo.id];
-                      return updated;
-                    })}
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Clear
-                  </Button>
-                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setAgentOutputs(prev => {
+                    const updated = { ...prev };
+                    delete updated[demo.id];
+                    return updated;
+                  })}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Clear
+                </Button>
               </div>
 
-              {viewMode === "raw" ? (
-                <div className="bg-secondary rounded-lg p-4 font-mono text-sm max-h-[60vh] overflow-y-auto whitespace-pre-wrap">
-                  {currentOutput.raw}
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-slate-950 border rounded-lg p-6 max-h-[60vh] overflow-y-auto">
-                  <div dangerouslySetInnerHTML={{ __html: currentOutput.html }} />
-                </div>
-              )}
+              <div className="bg-secondary rounded-lg p-4 font-mono text-sm max-h-[60vh] overflow-y-auto whitespace-pre-wrap">
+                {currentOutput}
+              </div>
             </Card>
           )}
         </TabsContent>

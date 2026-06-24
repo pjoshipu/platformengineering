@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Bot, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DemoRunner from "@/components/DemoRunner";
-import Footer from "@/components/Footer";
 import { useAuth, DeveloperUser } from "@/contexts/AuthContext";
 
 const DeveloperView = () => {
@@ -70,9 +68,6 @@ const DeveloperView = () => {
           developerProfileId={developerUser.profileId}
         />
       </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

@@ -18,6 +18,8 @@ new hire which role they are, then reads the matching file and feeds its content
 | Frontend Developer                | `personas/frontend-developer.md`   |
 | Backend Developer                 | `personas/backend-developer.md`    |
 | Data Engineer                     | `personas/data-engineer.md`        |
+| Data Scientist                    | `personas/data-scientist.md`       |
+| AI Engineer                       | `personas/ai-engineer.md`          |
 
 If the user picks a role not listed here (via "Other"), choose the closest file and adapt, or
 synthesize a persona context inline using the same sections (stack & tooling, key systems,

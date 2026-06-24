@@ -14,7 +14,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import DemoRunner from "@/components/DemoRunner";
 import ProfileManagementDialog from "@/components/ProfileManagementDialog";
-import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AdminView = () => {
@@ -166,9 +165,6 @@ const AdminView = () => {
         open={isProfileDialogOpen}
         onOpenChange={setIsProfileDialogOpen}
       />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

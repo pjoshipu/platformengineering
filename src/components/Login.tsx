@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield, User, LogIn } from 'lucide-react';
-import Footer from '@/components/Footer';
 import { useAuth, DeveloperUser, AdminUser } from '@/contexts/AuthContext';
 
 const DEVELOPER_PROFILES = {
@@ -122,9 +121,6 @@ const Login = () => {
         </div>
       </Card>
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
