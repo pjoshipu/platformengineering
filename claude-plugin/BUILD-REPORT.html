@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>platform-console — Build Report</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#c9d1d9;
+    --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --amber:#d29922;
+    --red:#f85149; --purple:#bc8cff; --code:#0b1020;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;font-size:16px}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 24px 80px}
+  header.hero{border:1px solid var(--border);border-radius:12px;padding:28px 32px;
+    background:linear-gradient(135deg,#161b22,#1c2333);margin-bottom:32px}
+  header.hero h1{margin:0 0 6px;font-size:30px}
+  header.hero .sub{color:var(--muted);font-size:16px}
+  .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;
+    border:1px solid var(--border);color:var(--muted);margin:8px 6px 0 0;background:#0d1117}
+  h2{margin-top:42px;font-size:22px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  h3{margin-top:28px;font-size:17px;color:var(--accent)}
+  p{color:var(--text)}
+  .muted{color:var(--muted)}
+  code{background:var(--code);color:#e6edf3;padding:2px 6px;border-radius:5px;
+    font-family:"SF Mono",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;overflow:auto;font-size:13px;line-height:1.55}
+  pre code{background:none;padding:0}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#1c2333;color:#e6edf3}
+  tr:nth-child(even) td{background:#11161d}
+  .card{border:1px solid var(--border);border-radius:10px;padding:18px 22px;
+    background:var(--panel);margin:16px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .stat{border:1px solid var(--border);border-radius:10px;padding:16px;background:var(--panel)}
+  .stat .n{font-size:28px;font-weight:700;color:var(--accent)}
+  .stat .l{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  .tag{font-size:12px;padding:2px 8px;border-radius:6px;font-weight:600}
+  .t-cmd{background:#10233b;color:#79c0ff}
+  .t-skill{background:#2b1d3a;color:var(--purple)}
+  .t-cfg{background:#14281a;color:var(--green)}
+  .ok{color:var(--green);font-weight:600}
+  .step{border-left:3px solid var(--accent);padding:4px 0 4px 16px;margin:14px 0}
+  .step b{color:#e6edf3}
+  ul li{margin:4px 0}
+  footer{margin-top:60px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);
+    padding-top:18px;text-align:center}
+  .legend span{margin-right:14px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🛠️ platform-console</h1>
+  <div class="sub">A Claude Code plugin that mirrors this repo's web <b>Admin Console</b> (the
+  <i>Agentic AI in Platform Engineering</i> app) as native slash commands.</div>
+  <div>
+    <span class="pill">Claude Code plugin</span>
+    <span class="pill">9 slash commands</span>
+    <span class="pill">2 skills</span>
+    <span class="pill">8 prompt templates</span>
+    <span class="pill">5 personas</span>
+    <span class="pill">Build report · 2026-06-18</span>
+  </div>
+</header>
+
+<h2>1. What this is &amp; why</h2>
+<p>The repository <code>platformengineering</code> is a React/Vite course-demo app. Its web UI has an
+<b>Admin view</b> with 8 AI-agent "tabs" and a <b>Developer view</b> with a copilot. Today each agent
+is a Supabase Edge Function (Deno/TS) that builds a prompt and calls an external LLM
+(<code>gpt-4o-mini</code> / <code>claude-3-haiku</code>).</p>
+<p>This plugin re-implements those tabs as Claude Code slash commands. Because <b>Claude Code is itself
+the model</b>, the agents run <b>natively in the conversation</b> — reusing the exact same prompts — with
+<b>no API keys, no servers, and no network calls</b>. Typing <code>/admin</code> opens the console,
+<code>/on-board</code> interactively asks the new hire's persona before tailoring a plan, and every other
+tab has an equivalent command.</p>
+
+<div class="card">
+  <b>Decisions confirmed with the user before building:</b>
+  <ul>
+    <li><b>Execution:</b> Claude runs the agents natively (no external backends).</li>
+    <li><b>Scope:</b> all 8 agents + an <code>/admin</code> launcher.</li>
+    <li><b>Location:</b> in-repo, so prompts stay version-controlled next to the edge functions they mirror.</li>
+    <li><b>Roles:</b> Admin scope for now (the developer copilot still ships as one of the 8 agents).</li>
+  </ul>
+</div>
+
+<h2>2. By the numbers</h2>
+<div class="grid">
+  <div class="stat"><div class="n">25</div><div class="l">Files created</div></div>
+  <div class="stat"><div class="n">9</div><div class="l">Slash commands</div></div>
+  <div class="stat"><div class="n">2</div><div class="l">Skills</div></div>
+  <div class="stat"><div class="n">8</div><div class="l">Prompt templates</div></div>
+  <div class="stat"><div class="n">5</div><div class="l">Persona files</div></div>
+  <div class="stat"><div class="n">2</div><div class="l">JSON manifests (validated ✓)</div></div>
+</div>
+
+<h2>3. Architecture — three primitives, one job each</h2>
+<table>
+  <tr><th>Primitive</th><th>Role</th><th>Why</th></tr>
+  <tr>
+    <td><span class="tag t-cmd">commands/*.md</span></td>
+    <td>Thin entry points = the "tabs". Gather inputs (from <code>$ARGUMENTS</code> or via
+    <code>AskUserQuestion</code>) and point Claude at the right template.</td>
+    <td>No duplicated prompt text — the heavy prompt lives in exactly one place.</td>
+  </tr>
+  <tr>
+    <td><span class="tag t-skill">skill: pe-prompts</span></td>
+    <td>One canonical prompt template per agent, lifted verbatim from
+    <code>supabase/functions/&lt;agent&gt;/index.ts</code>.</td>
+    <td>Single source of truth; behavior matches the web app and never drifts.</td>
+  </tr>
+  <tr>
+    <td><span class="tag t-skill">skill: pe-personas</span></td>
+    <td>Persona reference files read by <code>/on-board</code> to tailor onboarding by role.</td>
+    <td>Richer than the web app, which only had free-text team/background.</td>
+  </tr>
+</table>
+<p class="muted">Subagents were intentionally left out of v1 — native inline execution keeps the
+interactive <code>/on-board</code> flow clean. Bundled files are referenced via
+<code>${CLAUDE_PLUGIN_ROOT}</code> so they resolve regardless of install location.</p>
+
+<h2>4. File tree (all new, under the repo)</h2>
+<pre><code>claude-plugin/
+├── .claude-plugin/
+│   └── marketplace.json            <span class="muted"># marketplace "platform-eng"</span>
+├── README.md                       <span class="muted"># install + usage</span>
+├── BUILD-REPORT.html               <span class="muted"># this document</span>
+└── platform-console/
+    ├── .claude-plugin/
+    │   └── plugin.json             <span class="muted"># plugin manifest (name required)</span>
+    ├── commands/                   <span class="muted"># 9 thin entry points</span>
+    │   ├── admin.md                <span class="muted"># /admin      router / launcher</span>
+    │   ├── on-board.md             <span class="muted"># /on-board   interactive persona Q&amp;A</span>
+    │   ├── diagnostic.md           <span class="muted"># /diagnostic</span>
+    │   ├── release.md              <span class="muted"># /release</span>
+    │   ├── flags.md                <span class="muted"># /flags</span>
+    │   ├── security.md             <span class="muted"># /security</span>
+    │   ├── cost.md                 <span class="muted"># /cost</span>
+    │   ├── incident.md             <span class="muted"># /incident</span>
+    │   └── copilot.md              <span class="muted"># /copilot    conversational loop</span>
+    └── skills/
+        ├── pe-prompts/
+        │   ├── SKILL.md
+        │   └── templates/          <span class="muted"># 8 verbatim agent prompts</span>
+        │       ├── developer-onboarding.md
+        │       ├── workflow-diagnostic.md
+        │       ├── release-readiness.md
+        │       ├── feature-flag-lifecycle.md
+        │       ├── security-posture.md
+        │       ├── cost-optimization.md
+        │       ├── incident-response.md
+        │       └── developer-portal.md
+        └── pe-personas/
+            ├── SKILL.md
+            └── personas/           <span class="muted"># 5 role reference files</span>
+                ├── platform-developer.md
+                ├── android-developer.md
+                ├── frontend-developer.md
+                ├── backend-developer.md
+                └── data-engineer.md</code></pre>
+
+<h2>5. The 9 commands &amp; their source mapping</h2>
+<p>Each command renders a <b>formatted report by default</b>; reply <code>json</code> to get the raw JSON
+in the agent's output schema (where one is defined). Every template was extracted verbatim from the
+corresponding edge function so the console matches production behavior.</p>
+<table>
+  <tr><th>Command</th><th>Agent (web tab)</th><th>Template / source of truth</th></tr>
+  <tr><td><code>/admin</code></td><td>Admin Console (router)</td><td>catalog mirrors <code>src/config/agents.ts</code></td></tr>
+  <tr><td><code>/on-board</code></td><td>Developer Onboarding</td><td><code>developer-onboarding/index.ts</code> (<code>buildOnboardingPrompt</code>)</td></tr>
+  <tr><td><code>/diagnostic</code></td><td>CI/CD Diagnostic</td><td><code>workflow-diagnostic/index.ts</code></td></tr>
+  <tr><td><code>/release</code></td><td>Release Readiness</td><td><code>release-readiness/index.ts</code></td></tr>
+  <tr><td><code>/flags</code></td><td>Feature Flag Lifecycle</td><td><code>feature-flag-lifecycle/index.ts</code></td></tr>
+  <tr><td><code>/security</code></td><td>Security Posture</td><td><code>security-posture/index.ts</code></td></tr>
+  <tr><td><code>/cost</code></td><td>Cost Optimization</td><td><code>cost-optimization/index.ts</code></td></tr>
+  <tr><td><code>/incident</code></td><td>Incident Response</td><td><code>incident-response/index.ts</code></td></tr>
+  <tr><td><code>/copilot</code></td><td>Developer Portal</td><td><code>developer-portal/index.ts</code></td></tr>
+</table>
+
+<h2>6. The interactive <code>/on-board</code> flow</h2>
+<div class="step"><b>Step 1 — Gather inputs.</b> Parse <code>$ARGUMENTS</code>; for anything missing,
+call <code>AskUserQuestion</code> for <b>Role</b> (Platform / Android / Frontend / Backend dev,
++ Other → Data Engineer), <b>Level</b> (Junior 14d / Intermediate 7d / Senior 5d),
+<b>Team</b>, and <b>Learning style</b> (Async / Pair / Mixed).</div>
+<div class="step"><b>Step 2 — Load persona context.</b> Map the chosen role to
+<code>skills/pe-personas/personas/&lt;role&gt;.md</code> and read it.</div>
+<div class="step"><b>Step 3 — Run the agent prompt.</b> Read
+<code>skills/pe-prompts/templates/developer-onboarding.md</code>, fill placeholders, and apply the
+experience-based ramp plus the persona's ramp-time modifier.</div>
+<div class="step"><b>Step 4 — Output.</b> A formatted plan (checklist by category, ranked resources,
+first-week agenda, success metrics, mentor recommendation, ramp estimate); raw JSON on request.</div>
+
+<h3>Sample command file — <code>commands/on-board.md</code> (frontmatter)</h3>
+<pre><code>---
+description: Developer Onboarding agent — interactive, persona-tailored onboarding plan for a new hire.
+argument-hint: [name] [team] [junior|intermediate|senior]
+allowed-tools: Read, AskUserQuestion
+---</code></pre>
+
+<h2>7. Persona files</h2>
+<p>Each persona file supplies the tailoring context the generic onboarding prompt otherwise lacks —
+stack &amp; tooling, key systems to access first, role-specific tasks (with category + est. days),
+ranked resources, people-to-meet, first-week goals, and ramp-time modifiers.</p>
+<table>
+  <tr><th>Persona</th><th>Tailoring highlights</th></tr>
+  <tr><td>Platform / Infra</td><td>Terraform, K8s, Helm, GitOps; cloud IAM + cluster creds; +1–2d ramp for access setup</td></tr>
+  <tr><td>Android</td><td>Kotlin, Android Studio, Gradle, Jetpack/Compose; Play Console + signing; emulator setup</td></tr>
+  <tr><td>Frontend</td><td>TypeScript, React/Vue, design system, Storybook, e2e; fast local setup</td></tr>
+  <tr><td>Backend</td><td>Java/Go/Python/Node, APIs, DB + migrations, Docker Compose local stack</td></tr>
+  <tr><td>Data Engineer</td><td>Spark/dbt/Airflow, warehouse roles, lineage, PII/governance; +2d for access approvals</td></tr>
+</table>
+
+<h2>8. Install &amp; enable</h2>
+<p>From the repo root in a Claude Code session:</p>
+<pre><code>/plugin marketplace add ./claude-plugin
+/plugin install platform-console@platform-eng
+/reload-plugins</code></pre>
+<p>To auto-enable for the whole team on clone, commit this to the repo's
+<span class="tag t-cfg">.claude/settings.json</span>:</p>
+<pre><code>{
+  "extraKnownMarketplaces": {
+    "platform-eng": {
+      "source": { "source": "directory", "path": "./claude-plugin" }
+    }
+  },
+  "enabledPlugins": {
+    "platform-console@platform-eng": true
+  }
+}</code></pre>
+<p class="muted">The <code>enabledPlugins</code> object-map shape (not an array) was verified against the
+current Claude Code plugin-marketplace docs.</p>
+
+<h2>9. Verification performed</h2>
+<ul>
+  <li><span class="ok">✓</span> All 25 files written; directory tree confirmed.</li>
+  <li><span class="ok">✓</span> Both JSON manifests (<code>plugin.json</code>, <code>marketplace.json</code>) parse cleanly.</li>
+  <li><span class="ok">✓</span> Plugin installed &amp; reloaded live: <i>1 plugin · 9 skills · 6 agents · 0 hooks</i>.</li>
+  <li><span class="ok">✓</span> <code>/admin</code> router lists the catalog and routes via <code>AskUserQuestion</code>.</li>
+  <li><span class="ok">✓</span> End-to-end demo runs: <code>/on-board</code> (Junior Android, async → ~15-day tailored plan),
+  <code>/security</code> (sample CVE/secret/drift dataset → CRITICAL posture report),
+  <code>/release</code> (borderline candidate → HOLD @ 88% confidence).</li>
+  <li><span class="ok">✓</span> <code>enabledPlugins</code> settings shape corrected after a docs check.</li>
+</ul>
+
+<h2>10. Build sequence (what was actually done)</h2>
+<div class="step"><b>Explore.</b> Two parallel read-only agents mapped the repo's UI tabs / agent
+catalog and confirmed no existing Claude Code customization beyond basic permissions.</div>
+<div class="step"><b>Read sources.</b> All 8 edge-function prompts and <code>src/config/agents.ts</code>
+read to ground the templates in real prompt text.</div>
+<div class="step"><b>Plan.</b> A Plan agent designed the command/skill/persona split; four scoping
+questions confirmed with the user; plan written &amp; approved.</div>
+<div class="step"><b>Build.</b> Manifests → 8 templates + <code>pe-prompts</code> skill →
+5 personas + <code>pe-personas</code> skill → 9 commands → README.</div>
+<div class="step"><b>Verify.</b> JSON validated, plugin installed/reloaded, four agents exercised live.</div>
+
+<footer>
+  Generated for the <b>platform-console</b> Claude Code plugin · in-repo at <code>./claude-plugin</code><br>
+  Prompts mirror <code>supabase/functions/*</code> · catalog mirrors <code>src/config/agents.ts</code>
+</footer>
+
+</div>
+</body>
+</html>

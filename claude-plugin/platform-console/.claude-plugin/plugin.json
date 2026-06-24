@@ -1,0 +1,16 @@
+{
+  "name": "platform-console",
+  "version": "1.0.0",
+  "description": "Admin Console for Platform Engineering: the 8 platform-engineering AI agents (onboarding, CI/CD diagnostic, release readiness, feature flags, security, cost, incident, developer portal) as slash commands.",
+  "author": {
+    "name": "BCG Platform Engineering Course",
+    "email": "joshipura.pranav@bcg.com"
+  },
+  "keywords": [
+    "platform-engineering",
+    "devops",
+    "onboarding",
+    "sre",
+    "agentic-ai"
+  ]
+}

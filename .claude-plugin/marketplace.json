@@ -1,0 +1,17 @@
+{
+  "name": "platform-eng",
+  "owner": {
+    "name": "BCG Platform Engineering Course"
+  },
+  "metadata": {
+    "description": "Agentic AI in Platform Engineering — Claude Code console plugin marketplace.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "platform-console",
+      "source": "./claude-plugin/platform-console",
+      "description": "Mirrors the web platform's Admin Console and its 8 AI agents as Claude Code slash commands."
+    }
+  ]
+}
