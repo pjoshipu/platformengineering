@@ -27,55 +27,81 @@ import security from "./security";
 import dataEngineer from "./data-engineer";
 
 /**
- * Shared, persona-aware capability screens (from IDP_SCREEN_REQUIREMENTS.md),
- * added to every persona and grouped into sidebar sections. `element` is the
- * screen; `securityOnly` items (Role-Based Management, cap 4.3) are injected
- * only for the `security` persona. The persona's own screens are grouped under
- * "Workspace". Add a new capability = one entry here.
+ * Shared capability ROUTES injected for every persona (screens from
+ * IDP_SCREEN_REQUIREMENTS.md). `securityOnly` items (Role-Based Management,
+ * cap 4.3) are injected only for the `security` persona. Nav placement/grouping
+ * is built separately in `withSharedScreens`.
  */
-interface SharedScreen {
-  label: string;
+interface SharedRoute {
   path: string;
-  icon: IdpNavItem["icon"];
-  group: string;
   element: RouteObject["element"];
   securityOnly?: boolean;
 }
 
-const SHARED_SCREENS: SharedScreen[] = [
-  // Pillar 1 — Software Assets
-  { label: "Software Catalog", path: "catalog", icon: Library, group: "Software Assets", element: <Catalog /> },
-  { label: "Templates", path: "templates", icon: LayoutTemplate, group: "Software Assets", element: <Templates /> },
-  { label: "Scorecards", path: "scorecards", icon: ClipboardCheck, group: "Software Assets", element: <Scorecards /> },
-  { label: "Service Health", path: "health", icon: HeartPulse, group: "Software Assets", element: <Health /> },
-  // Pillar 2 — Knowledge
-  { label: "Documentation", path: "docs", icon: BookText, group: "Knowledge", element: <Docs /> },
-  { label: "Forum", path: "forum", icon: MessagesSquare, group: "Knowledge", element: <Forum /> },
-  // Pillar 3 — Environment (paths avoid persona 'pipelines'/'infrastructure' collisions)
-  { label: "Self-Service", path: "actions", icon: Zap, group: "Environment", element: <Actions /> },
-  { label: "Integrations", path: "integrations", icon: Plug, group: "Environment", element: <Integrations /> },
-  { label: "Orchestration", path: "orchestration", icon: Workflow, group: "Environment", element: <Orchestration /> },
-  { label: "Infrastructure KPIs", path: "infra", icon: Gauge, group: "Environment", element: <InfraKPIs /> },
-  // Pillar 4 — Administration
-  { label: "My Dashboard", path: "board", icon: LayoutGrid, group: "Administration", element: <Board /> },
-  { label: "Usage Analytics", path: "analytics", icon: BarChart3, group: "Administration", element: <Analytics /> },
-  { label: "Role Management", path: "admin", icon: UserCog, group: "Administration", element: <RoleManagement />, securityOnly: true },
-  // Agents
-  { label: "Agentic Experience", path: "agentic", icon: Sparkles, group: "Agents", element: <AgenticExperience /> },
+const SHARED_ROUTES: SharedRoute[] = [
+  { path: "catalog", element: <Catalog /> },
+  { path: "templates", element: <Templates /> },
+  { path: "scorecards", element: <Scorecards /> },
+  { path: "health", element: <Health /> },
+  { path: "docs", element: <Docs /> },
+  { path: "forum", element: <Forum /> },
+  { path: "actions", element: <Actions /> },
+  { path: "integrations", element: <Integrations /> },
+  { path: "orchestration", element: <Orchestration /> },
+  { path: "infra", element: <InfraKPIs /> },
+  { path: "board", element: <Board /> },
+  { path: "analytics", element: <Analytics /> },
+  { path: "admin", element: <RoleManagement />, securityOnly: true },
+  { path: "agentic", element: <AgenticExperience /> },
 ];
 
+/**
+ * Builds the grouped, persona-aware sidebar + routes. Layout (top→bottom):
+ *  - Quick access: persona Dashboard, My Dashboard, Software Catalog, Agentic Experience
+ *  - Workspace: the persona's own screens (minus Dashboard, promoted to Quick access)
+ *  - Software Assets / Knowledge Assets / Environment Assets / Portal & Admin: the pillars
+ * (Catalog also appears under Software Assets — intentional shortcut duplication.)
+ */
 const withSharedScreens = (m: PersonaModule): PersonaModule => {
-  const shared = SHARED_SCREENS.filter((s) => !s.securityOnly || m.id === "security");
+  const isSec = m.id === "security";
+  const dash = m.nav.find((n) => n.path === "dashboard");
+  const own = m.nav
+    .filter((n) => n.path !== "dashboard")
+    .map((n) => ({ ...n, group: "Workspace" }));
+
+  const quickAccess: IdpNavItem[] = [
+    ...(dash ? [{ ...dash, group: "Quick access" }] : []),
+    { label: "My Dashboard", path: "board", icon: LayoutGrid, group: "Quick access" },
+    { label: "Software Catalog", path: "catalog", icon: Library, group: "Quick access" },
+    { label: "Agentic Experience", path: "agentic", icon: Sparkles, group: "Quick access" },
+  ];
+
+  const pillars: IdpNavItem[] = [
+    { label: "Software Catalog", path: "catalog", icon: Library, group: "Software Assets" },
+    { label: "Templates", path: "templates", icon: LayoutTemplate, group: "Software Assets" },
+    { label: "Scorecards", path: "scorecards", icon: ClipboardCheck, group: "Software Assets" },
+    { label: "Service Health", path: "health", icon: HeartPulse, group: "Software Assets" },
+    { label: "Documentation", path: "docs", icon: BookText, group: "Knowledge Assets" },
+    { label: "Forum", path: "forum", icon: MessagesSquare, group: "Knowledge Assets" },
+    { label: "Self-Service", path: "actions", icon: Zap, group: "Environment Assets" },
+    { label: "Integrations", path: "integrations", icon: Plug, group: "Environment Assets" },
+    { label: "Orchestration", path: "orchestration", icon: Workflow, group: "Environment Assets" },
+    { label: "Infrastructure KPIs", path: "infra", icon: Gauge, group: "Environment Assets" },
+    { label: "Usage Analytics", path: "analytics", icon: BarChart3, group: "Portal & Admin" },
+    ...(isSec
+      ? [{ label: "Role Management", path: "admin", icon: UserCog, group: "Portal & Admin" }]
+      : []),
+  ];
+
   return {
     ...m,
-    // persona's own screens go under "Workspace"; shared screens carry their group
-    nav: [
-      ...m.nav.map((n) => ({ ...n, group: n.group ?? "Workspace" })),
-      ...shared.map(({ label, path, icon, group }) => ({ label, path, icon, group })),
-    ],
+    nav: [...quickAccess, ...own, ...pillars],
     routes: [
       ...m.routes,
-      ...shared.map(({ path, element }) => ({ path: `${m.id}/${path}`, element })),
+      ...SHARED_ROUTES.filter((s) => !s.securityOnly || isSec).map((s) => ({
+        path: `${m.id}/${s.path}`,
+        element: s.element,
+      })),
     ],
   };
 };

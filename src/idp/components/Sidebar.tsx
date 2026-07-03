@@ -11,12 +11,12 @@ interface SidebarProps {
 
 /** Preferred section order; unknown groups fall to the end in first-seen order. */
 const GROUP_ORDER = [
+  "Quick access",
   "Workspace",
   "Software Assets",
-  "Knowledge",
-  "Environment",
-  "Administration",
-  "Agents",
+  "Knowledge Assets",
+  "Environment Assets",
+  "Portal & Admin",
 ];
 
 export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
