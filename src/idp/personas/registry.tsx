@@ -1,6 +1,7 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Library } from "lucide-react";
 import type { PersonaModule } from "../types";
 import AgenticExperience from "../agentic/AgenticExperience";
+import Catalog from "../capabilities/catalog/Catalog";
 import aiEngineer from "./ai-engineer";
 import agenticEngineer from "./agentic-engineer";
 import dataScientist from "./data-scientist";
@@ -10,15 +11,25 @@ import security from "./security";
 import dataEngineer from "./data-engineer";
 
 /**
- * Adds the per-persona "Agentic Experience" as a nav item + route to every
- * persona module, so it's available for everyone (with a role-appropriate,
- * curated agent set — see agentic/curated.ts). Done centrally here rather than
- * in each persona folder.
+ * Adds shared, persona-aware capability screens as nav items + routes to every
+ * persona (available to all, adapting to the active persona):
+ *  - "Agentic Experience" — role-curated agents (see agentic/curated.ts)
+ *  - "Software Catalog"    — capability 1.1 (see capabilities/catalog)
+ * Done centrally here rather than in each persona folder. Additional capability
+ * screens from IDP_SCREEN_REQUIREMENTS.md are added the same way.
  */
-const withAgenticExperience = (m: PersonaModule): PersonaModule => ({
+const withSharedScreens = (m: PersonaModule): PersonaModule => ({
   ...m,
-  nav: [...m.nav, { label: "Agentic Experience", path: "agentic", icon: Sparkles }],
-  routes: [...m.routes, { path: `${m.id}/agentic`, element: <AgenticExperience /> }],
+  nav: [
+    ...m.nav,
+    { label: "Software Catalog", path: "catalog", icon: Library },
+    { label: "Agentic Experience", path: "agentic", icon: Sparkles },
+  ],
+  routes: [
+    ...m.routes,
+    { path: `${m.id}/catalog`, element: <Catalog /> },
+    { path: `${m.id}/agentic`, element: <AgenticExperience /> },
+  ],
 });
 
 /**
@@ -33,7 +44,7 @@ export const PERSONA_MODULES: PersonaModule[] = [
   mlops,
   security,
   dataEngineer,
-].map(withAgenticExperience);
+].map(withSharedScreens);
 
 export const getPersonaModule = (id: string) =>
   PERSONA_MODULES.find((p) => p.id === id);
