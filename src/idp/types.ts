@@ -7,6 +7,8 @@ export interface IdpNavItem {
   /** path relative to the persona base, e.g. "dashboard" or "deploy" */
   path: string;
   icon: LucideIcon;
+  /** sidebar section this item belongs to (e.g. "Workspace", "Software Assets") */
+  group?: string;
 }
 
 /**
