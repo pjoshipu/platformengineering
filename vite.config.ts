@@ -13,7 +13,9 @@ export default defineConfig(async ({ mode }) => {
   }
 
   return {
-    base: "/platform/", // GitHub Pages deployment path
+    // Vercel serves at the domain root ("/"); GitHub Pages serves under "/platform/".
+    // Vercel sets VERCEL=1 in the build environment.
+    base: process.env.VERCEL ? "/" : "/platform/",
     server: {
       host: "::",
       port: 8080,

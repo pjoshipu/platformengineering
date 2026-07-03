@@ -12,12 +12,6 @@ import {
 } from "@/components/ui/select";
 import { User } from "lucide-react";
 
-interface DynamicDemoInputsProps {
-  demoId: string;
-  onPayloadChange: (payload: any) => void;
-  developerProfileId?: string;
-}
-
 interface DeveloperProfile {
   name: string;
   experience: string;
@@ -25,6 +19,16 @@ interface DeveloperProfile {
   techStack: string;
   role: string;
   query: string;
+}
+
+interface DynamicDemoInputsProps {
+  demoId: string;
+  onPayloadChange: (payload: any) => void;
+  developerProfileId?: string;
+  /** persona-driven field overrides (field name → value) applied on mount / change */
+  contextSeed?: Record<string, string>;
+  /** persona identity used as the developerContext for role-aware agents */
+  personaProfile?: DeveloperProfile;
 }
 
 const DEVELOPER_PROFILES: Record<string, DeveloperProfile> = {
@@ -110,7 +114,7 @@ const DEVELOPER_PROFILES: Record<string, DeveloperProfile> = {
   }
 };
 
-const DynamicDemoInputs = ({ demoId, onPayloadChange, developerProfileId }: DynamicDemoInputsProps) => {
+const DynamicDemoInputs = ({ demoId, onPayloadChange, developerProfileId, contextSeed, personaProfile }: DynamicDemoInputsProps) => {
   // Track previous demoId to detect actual changes
   const [prevDemoId, setPrevDemoId] = useState(demoId);
 
@@ -218,7 +222,7 @@ const DynamicDemoInputs = ({ demoId, onPayloadChange, developerProfileId }: Dyna
         break;
 
       case "workflow-diagnostic":
-        const profile = DEVELOPER_PROFILES[selectedProfile] || DEVELOPER_PROFILES["kevin-backend"];
+        const profile = personaProfile ?? (DEVELOPER_PROFILES[selectedProfile] || DEVELOPER_PROFILES["kevin-backend"]);
         payload = {
           errorLog: errorLog,
           workflowContext: `Repository: ${wfRepository}
@@ -458,6 +462,32 @@ Last successful run: ${wfLastSuccess}`,
       loadDeveloperProfile(developerProfileId);
     }
   }, [developerProfileId]);
+
+  // Apply persona-driven context seed. Declared AFTER the demo-change reset
+  // effect so persona values override the hardcoded defaults for seeded fields.
+  useEffect(() => {
+    if (!contextSeed) return;
+    const setters: Record<string, (v: string) => void> = {
+      devName: setDevName, devExperience: setDevExperience, devTeam: setDevTeam,
+      devTechStack: setDevTechStack, devRole: setDevRole, devQuery: setDevQuery,
+      errorLog: setErrorLog, wfRepository: setWfRepository, wfBranch: setWfBranch,
+      wfTrigger: setWfTrigger, wfEnvironment: setWfEnvironment, wfLastSuccess: setWfLastSuccess,
+      testCoverage: setTestCoverage, avgResponseTime: setAvgResponseTime,
+      p95ResponseTime: setP95ResponseTime, p99ResponseTime: setP99ResponseTime,
+      criticalVulns: setCriticalVulns, highVulns: setHighVulns, mediumVulns: setMediumVulns,
+      maintainabilityScore: setMaintainabilityScore, techDebtHours: setTechDebtHours,
+      codeSmells: setCodeSmells, successRate: setSuccessRate, rollbackCount: setRollbackCount,
+      onboardName: setOnboardName, onboardTeam: setOnboardTeam, onboardExp: setOnboardExp,
+      onboardBg: setOnboardBg, onboardStart: setOnboardStart,
+      flagCount: setFlagCount, staleThreshold: setStaleThreshold, flagSamples: setFlagSamples,
+      cveCount: setCveCount, criticalCves: setCriticalCves, secretsFound: setSecretsFound,
+      iacDrift: setIacDrift,
+      incidentDesc: setIncidentDesc, affectedServices: setAffectedServices, errorRate: setErrorRate,
+      costCompute: setCostCompute, costMonthly: setCostMonthly, costDb: setCostDb,
+    };
+    Object.entries(contextSeed).forEach(([field, value]) => setters[field]?.(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextSeed, demoId]);
 
   // Call state setter and mark as custom
   const handleInputChange = (setter: (value: string) => void, value: string) => {

@@ -1,21 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type UserRole = 'admin' | 'developer';
-
-export interface DeveloperUser {
-  role: 'developer';
-  profileId: string;
-  name: string;
-  team: string;
-  experience: string;
-}
-
-export interface AdminUser {
-  role: 'admin';
+/**
+ * Auth is client-side only (demo). A user is identified by the persona they
+ * chose at login; that persona scopes the entire IDP experience they see.
+ */
+export interface User {
+  /** IDP persona id, e.g. "data-scientist" (see src/idp/personas/registry.ts) */
+  persona: string;
+  /** display label, e.g. "Data Scientist" */
   name: string;
 }
-
-export type User = DeveloperUser | AdminUser;
 
 interface AuthContextType {
   user: User | null;
@@ -43,7 +37,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        // Only accept the current persona-based shape; ignore stale role-based sessions.
+        if (parsed && typeof parsed.persona === 'string') {
+          setUser(parsed);
+        } else {
+          localStorage.removeItem('currentUser');
+        }
       } catch (error) {
         console.error('Error parsing saved user:', error);
         localStorage.removeItem('currentUser');

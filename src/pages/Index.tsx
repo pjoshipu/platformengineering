@@ -1,27 +1,17 @@
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Login from "@/components/Login";
-import AdminView from "@/components/AdminView";
-import DeveloperView from "@/components/DeveloperView";
 
 const Index = () => {
   const { user } = useAuth();
 
-  // Show login if no user
+  // Not signed in → login. Signed in → the persona-scoped IDP is the primary
+  // (and only) experience.
   if (!user) {
     return <Login />;
   }
 
-  // Route based on user role
-  if (user.role === 'admin') {
-    return <AdminView />;
-  }
-
-  if (user.role === 'developer') {
-    return <DeveloperView />;
-  }
-
-  // Fallback (should never reach here)
-  return <Login />;
+  return <Navigate to="/idp" replace />;
 };
 
 export default Index;

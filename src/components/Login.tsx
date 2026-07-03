@@ -1,125 +1,89 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield, User, LogIn } from 'lucide-react';
-import { useAuth, DeveloperUser, AdminUser } from '@/contexts/AuthContext';
+import { LogIn, Boxes } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { PERSONA_MODULES } from '@/idp/personas/registry';
 
-const DEVELOPER_PROFILES = {
-  'kevin-backend': { name: 'Kevin Johnson', team: 'Backend', experience: 'intermediate' },
-  'sarah-senior': { name: 'Sarah Chen', team: 'Platform', experience: 'advanced' },
-  'mike-frontend': { name: 'Mike Rodriguez', team: 'Frontend', experience: 'intermediate' },
-  'priya-platform': { name: 'Priya Sharma', team: 'Platform', experience: 'expert' },
-  'emma-mobile': { name: 'Emma Davis', team: 'Mobile', experience: 'advanced' },
-  'james-ios': { name: 'James Park', team: 'Mobile (iOS)', experience: 'intermediate' },
-  'lisa-android': { name: 'Lisa Wang', team: 'Mobile (Android)', experience: 'advanced' },
-  'tom-junior': { name: 'Tom Wilson', team: 'Backend', experience: 'beginner' },
-  'alex-fullstack': { name: 'Alex Kumar', team: 'Full Stack', experience: 'advanced' },
-};
-
+/**
+ * Persona-based login. Choosing an experience logs you in as that persona and
+ * drops you straight into the IDP scoped to your role — you only see your own
+ * screens (plus the Agentic Experience curated for that role).
+ */
 const Login = () => {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'developer' | ''>('');
-  const [selectedProfile, setSelectedProfile] = useState<string>('');
+  const navigate = useNavigate();
+  const [selectedPersona, setSelectedPersona] = useState<string>('');
 
   const handleLogin = () => {
-    if (selectedRole === 'admin') {
-      const adminUser: AdminUser = {
-        role: 'admin',
-        name: 'Admin User',
-      };
-      login(adminUser);
-    } else if (selectedRole === 'developer' && selectedProfile) {
-      const profile = DEVELOPER_PROFILES[selectedProfile as keyof typeof DEVELOPER_PROFILES];
-      const developerUser: DeveloperUser = {
-        role: 'developer',
-        profileId: selectedProfile,
-        name: profile.name,
-        team: profile.team,
-        experience: profile.experience,
-      };
-      login(developerUser);
-    }
+    const persona = PERSONA_MODULES.find((p) => p.id === selectedPersona);
+    if (!persona) return;
+    login({ persona: persona.id, name: persona.label });
+    const first = persona.nav[0]?.path ?? 'dashboard';
+    navigate(`/idp/${persona.id}/${first}`);
   };
+
+  const selected = PERSONA_MODULES.find((p) => p.id === selectedPersona);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex items-center justify-center p-6">
         <Card className="w-full max-w-md p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">Internal Developer Platform</h1>
-          <p className="text-muted-foreground">Sign in to continue</p>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="role">Select Role</Label>
-            <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as 'admin' | 'developer')}>
-              <SelectTrigger id="role" className="mt-2">
-                <SelectValue placeholder="Choose your role..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-primary" />
-                    <div>
-                      <div className="font-semibold">Admin</div>
-                      <div className="text-xs text-muted-foreground">Full platform access</div>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="developer">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    <div>
-                      <div className="font-semibold">Developer</div>
-                      <div className="text-xs text-muted-foreground">Personal developer portal</div>
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="text-center space-y-2">
+            <div className="flex justify-center">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Boxes className="w-7 h-7 text-primary" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold">Platform IDP</h1>
+            <p className="text-muted-foreground">Choose your experience to sign in</p>
           </div>
 
-          {selectedRole === 'developer' && (
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="profile">Select Your Profile</Label>
-              <Select value={selectedProfile} onValueChange={setSelectedProfile}>
-                <SelectTrigger id="profile" className="mt-2">
-                  <SelectValue placeholder="Choose your profile..." />
+              <Label htmlFor="persona">Experience</Label>
+              <Select value={selectedPersona} onValueChange={setSelectedPersona}>
+                <SelectTrigger id="persona" className="mt-2">
+                  <SelectValue placeholder="Select your role…" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px] overflow-y-auto">
-                  {Object.entries(DEVELOPER_PROFILES).map(([key, profile]) => (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex flex-col">
-                        <div className="font-medium">{profile.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {profile.team} • {profile.experience}
+                <SelectContent>
+                  {PERSONA_MODULES.map((persona) => {
+                    const Icon = persona.icon;
+                    return (
+                      <SelectItem key={persona.id} value={persona.id}>
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-primary" />
+                          <div>
+                            <div className="font-semibold">{persona.label}</div>
+                            <div className="text-xs text-muted-foreground">{persona.blurb}</div>
+                          </div>
                         </div>
-                      </div>
-                    </SelectItem>
-                  ))}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
-          )}
 
-          <Button
-            onClick={handleLogin}
-            disabled={!selectedRole || (selectedRole === 'developer' && !selectedProfile)}
-            className="w-full"
-            size="lg"
-          >
-            <LogIn className="w-4 h-4 mr-2" />
-            Sign In
-          </Button>
-        </div>
+            {selected && (
+              <p className="text-xs text-muted-foreground">
+                You'll land in the {selected.label} workspace with an Agentic Experience tailored to that role.
+              </p>
+            )}
 
-        <div className="text-center text-xs text-muted-foreground">
-          <p>Demo environment - No actual authentication required</p>
-        </div>
-      </Card>
+            <Button onClick={handleLogin} disabled={!selectedPersona} className="w-full" size="lg">
+              <LogIn className="w-4 h-4 mr-2" />
+              Enter Platform
+            </Button>
+          </div>
+
+          <div className="text-center text-xs text-muted-foreground">
+            <p>Demo environment — no actual authentication required</p>
+          </div>
+        </Card>
       </div>
     </div>
   );

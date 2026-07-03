@@ -48,6 +48,19 @@ interface DemoRunnerProps {
   onClose: () => void;
   userRole?: 'admin' | 'developer';
   developerProfileId?: string;
+  /** persona-driven form field overrides (field name → value) */
+  contextSeed?: Record<string, string>;
+  /** persona identity used as developerContext for role-aware agents */
+  contextProfile?: {
+    name: string;
+    experience: string;
+    team: string;
+    techStack: string;
+    role: string;
+    query: string;
+  };
+  /** persona preamble prepended to the agent prompt */
+  contextSummary?: string;
 }
 
 const CLAUDE_MODEL = "gpt-4o-mini";
@@ -121,7 +134,7 @@ const getAgentEndpoint = (agentId: string) => {
   };
 };
 
-const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: DemoRunnerProps) => {
+const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId, contextSeed, contextProfile, contextSummary }: DemoRunnerProps) => {
   const [isRunning, setIsRunning] = useState(false);
   const [agentOutputs, setAgentOutputs] = useState<Record<string, string>>({});
   const [output, setOutput] = useState<string[]>([]);
@@ -142,6 +155,10 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
   const supabaseConfigured = Boolean(
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
   );
+  // In production the key lives server-side behind a proxy (VITE_OPENAI_PROXY_URL,
+  // e.g. the Vercel /api/openai function) or Supabase — no client key required.
+  const proxyConfigured = Boolean(import.meta.env.VITE_OPENAI_PROXY_URL);
+  const canRun = Boolean(apiKey) || proxyConfigured || supabaseConfigured;
 
   const localStorageKey = `demoRuns:${demo.id}`;
 
@@ -313,8 +330,8 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
 
   const runDemo = async () => {
     setSelectedRun(null);
-    if (!apiKey) {
-      toast.error("API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.");
+    if (!canRun) {
+      toast.error("AI is not configured. Set VITE_OPENAI_PROXY_URL (proxy) or VITE_OPENAI_API_KEY.");
       return;
     }
 
@@ -356,7 +373,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
           body: JSON.stringify({
             model: CLAUDE_MODEL,
             max_tokens: 2048,
-            messages: [{ role: 'user', content: generatePromptForDemo(demo.id, payload) }],
+            messages: [{ role: 'user', content: (contextSummary ? contextSummary + '\n\n' : '') + generatePromptForDemo(demo.id, payload) }],
           }),
         });
       }
@@ -627,6 +644,8 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
               demoId={demo.id}
               onPayloadChange={setDynamicPayload}
               developerProfileId={developerProfileId}
+              contextSeed={contextSeed}
+              personaProfile={contextProfile}
             />
           </Card>
 
@@ -642,7 +661,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
 
               <Button
                 onClick={runDemo}
-                disabled={isRunning || !apiKey}
+                disabled={isRunning || !canRun}
                 className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                 size="lg"
               >
@@ -659,7 +678,7 @@ const DemoRunner = ({ demo, onClose, userRole = 'admin', developerProfileId }: D
                 )}
               </Button>
 
-              {!apiKey && (
+              {!canRun && (
                 <p className="text-xs text-muted-foreground italic">
                   ℹ️ Note: This is a demo environment. AI features require API configuration.
                 </p>
