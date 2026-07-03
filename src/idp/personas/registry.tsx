@@ -1,6 +1,6 @@
 import {
   Sparkles, Library, LayoutTemplate, ClipboardCheck, HeartPulse, Zap, Plug,
-  Workflow, Gauge, BookText, MessagesSquare, LayoutGrid, BarChart3, UserCog, Cable,
+  Workflow, Gauge, BookText, MessagesSquare, LayoutGrid, BarChart3, UserCog, Cable, Bot,
 } from "lucide-react";
 import type { PersonaModule, IdpNavItem } from "../types";
 import type { RouteObject } from "react-router-dom";
@@ -14,6 +14,9 @@ import Integrations from "../capabilities/integrations/Integrations";
 import Orchestration from "../capabilities/orchestration/Orchestration";
 import InfraKPIs from "../capabilities/infra/InfraKPIs";
 import Connectors from "../capabilities/connectors/Connectors";
+import Marketplace from "../capabilities/agents/Marketplace";
+import AgentDetail from "../capabilities/agents/AgentDetail";
+import AgentBuilder from "../capabilities/agents/AgentBuilder";
 import Docs from "../capabilities/docs/Docs";
 import Forum from "../capabilities/forum/Forum";
 import Board from "../capabilities/board/Board";
@@ -51,6 +54,10 @@ const SHARED_ROUTES: SharedRoute[] = [
   { path: "orchestration", element: <Orchestration /> },
   { path: "infra", element: <InfraKPIs /> },
   { path: "connectors", element: <Connectors /> },
+  // Agent Marketplace (build before :agentId so the static route wins)
+  { path: "agents/build", element: <AgentBuilder /> },
+  { path: "agents/:agentId", element: <AgentDetail /> },
+  { path: "agents", element: <Marketplace /> },
   { path: "board", element: <Board /> },
   { path: "analytics", element: <Analytics /> },
   { path: "admin", element: <RoleManagement />, securityOnly: true },
@@ -90,6 +97,7 @@ const withSharedScreens = (m: PersonaModule): PersonaModule => {
     { label: "Integrations", path: "integrations", icon: Plug, group: "Environment Assets" },
     { label: "Orchestration", path: "orchestration", icon: Workflow, group: "Environment Assets" },
     { label: "Infrastructure KPIs", path: "infra", icon: Gauge, group: "Environment Assets" },
+    { label: "Agent Marketplace", path: "agents", icon: Bot, group: "Marketplace" },
     { label: "Usage Analytics", path: "analytics", icon: BarChart3, group: "Portal & Admin" },
     ...(isSec
       ? [{ label: "Role Management", path: "admin", icon: UserCog, group: "Portal & Admin" }]

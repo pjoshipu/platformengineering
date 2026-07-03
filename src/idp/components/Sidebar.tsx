@@ -16,6 +16,7 @@ const GROUP_ORDER = [
   "Software Assets",
   "Knowledge Assets",
   "Environment Assets",
+  "Marketplace",
   "Portal & Admin",
 ];
 
