@@ -1,6 +1,6 @@
 import {
   Sparkles, Library, LayoutTemplate, ClipboardCheck, HeartPulse, Zap, Plug,
-  Workflow, Gauge, BookText, MessagesSquare, LayoutGrid, BarChart3, UserCog,
+  Workflow, Gauge, BookText, MessagesSquare, LayoutGrid, BarChart3, UserCog, Cable,
 } from "lucide-react";
 import type { PersonaModule, IdpNavItem } from "../types";
 import type { RouteObject } from "react-router-dom";
@@ -13,6 +13,7 @@ import Actions from "../capabilities/actions/Actions";
 import Integrations from "../capabilities/integrations/Integrations";
 import Orchestration from "../capabilities/orchestration/Orchestration";
 import InfraKPIs from "../capabilities/infra/InfraKPIs";
+import Connectors from "../capabilities/connectors/Connectors";
 import Docs from "../capabilities/docs/Docs";
 import Forum from "../capabilities/forum/Forum";
 import Board from "../capabilities/board/Board";
@@ -49,6 +50,7 @@ const SHARED_ROUTES: SharedRoute[] = [
   { path: "integrations", element: <Integrations /> },
   { path: "orchestration", element: <Orchestration /> },
   { path: "infra", element: <InfraKPIs /> },
+  { path: "connectors", element: <Connectors /> },
   { path: "board", element: <Board /> },
   { path: "analytics", element: <Analytics /> },
   { path: "admin", element: <RoleManagement />, securityOnly: true },
@@ -83,6 +85,7 @@ const withSharedScreens = (m: PersonaModule): PersonaModule => {
     { label: "Service Health", path: "health", icon: HeartPulse, group: "Software Assets" },
     { label: "Documentation", path: "docs", icon: BookText, group: "Knowledge Assets" },
     { label: "Forum", path: "forum", icon: MessagesSquare, group: "Knowledge Assets" },
+    { label: "Connectors", path: "connectors", icon: Cable, group: "Environment Assets" },
     { label: "Self-Service", path: "actions", icon: Zap, group: "Environment Assets" },
     { label: "Integrations", path: "integrations", icon: Plug, group: "Environment Assets" },
     { label: "Orchestration", path: "orchestration", icon: Workflow, group: "Environment Assets" },
