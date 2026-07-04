@@ -70,6 +70,7 @@ const CATALOG: Record<string, CatalogRow[]> = {
     { id: "pl_3", name: "payments_reconcile", type: "Pipeline", owner: "data-platform", status: "Non-compliant", updated_at: hoursAgo(5), fields: { violations: 3, opa_score: "74%", pii: "Yes", access: "restricted" } },
   ],
   "data-engineer": [
+    { id: "pl_9", name: "payments_hourly_rollup", type: "Data pipeline", owner: "data-platform", status: "Success", updated_at: minutesAgo(3), fields: { schedule: "0 * * * *", last_run: "3m ago", quality: "99%", consumers: "2 models", refresh: "Hourly" } },
     { id: "pl_1", name: "orders_daily_agg", type: "Data pipeline", owner: "data-platform", status: "Success", updated_at: hoursAgo(6), fields: { schedule: "0 2 * * *", last_run: "6h ago", quality: "98%", consumers: "3 models", refresh: "Daily" } },
     { id: "pl_7", name: "feature_churn_signals", type: "Data pipeline", owner: "data-platform", status: "Failed", updated_at: hoursAgo(7), fields: { schedule: "0 1 * * *", last_run: "7h ago", quality: "63%", consumers: "1 model", refresh: "Daily" } },
     { id: "ds_orders", name: "analytics.orders_daily", type: "Dataset", owner: "data-platform", status: "Published", updated_at: hoursAgo(6), fields: { schedule: "—", last_run: "—", quality: "98%", consumers: "5 downstream", refresh: "Daily" } },
