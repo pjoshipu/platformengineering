@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type { PersonaModule, IdpNavItem } from "../types";
+import { usePreferences } from "../preferences";
 
 interface SidebarProps {
   persona?: PersonaModule;
@@ -22,10 +23,13 @@ const GROUP_ORDER = [
 
 export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
   const PersonaIcon = persona?.icon;
+  const { isHidden } = usePreferences();
 
   // Group nav items into sections so the (now long) sidebar stays scannable.
+  // Items the user hid in Settings are filtered out here.
   const byGroup = new Map<string, IdpNavItem[]>();
   for (const item of persona?.nav ?? []) {
+    if (isHidden(item.path)) continue;
     const g = item.group ?? "Workspace";
     if (!byGroup.has(g)) byGroup.set(g, []);
     byGroup.get(g)!.push(item);

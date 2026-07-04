@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { TopHeader } from "./TopHeader";
 import { Sidebar } from "./Sidebar";
 import { personaForPath } from "../personas/registry";
+import { usePreferences } from "../preferences";
 
 /**
  * Common chrome for every IDP screen: top header (logo, search, notifications,
@@ -12,10 +13,11 @@ import { personaForPath } from "../personas/registry";
 export const AppShell = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const persona = personaForPath(location.pathname);
+  const { collapsedDefault } = usePreferences();
 
-  // Collapse to icon-only on smaller viewports by default.
+  // Collapse to icon-only on smaller viewports, or if the user prefers it.
   const [collapsed, setCollapsed] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 1024 : false
+    (typeof window !== "undefined" && window.innerWidth < 1024) || collapsedDefault
   );
 
   useEffect(() => {
@@ -25,6 +27,11 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Reflect the "start collapsed" preference when it's turned on in Settings.
+  useEffect(() => {
+    if (collapsedDefault) setCollapsed(true);
+  }, [collapsedDefault]);
 
   return (
     <div className="h-screen flex flex-col bg-background">

@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { getPersonaModule } from "./personas/registry";
 import { useAuth } from "@/contexts/AuthContext";
+import { PreferencesProvider } from "./preferences";
 
 /**
  * IDP entry mounted at /idp/* by App.tsx. The experience is scoped to the
@@ -23,7 +24,11 @@ const IdpApp = () => {
 
   if (!user || !persona) return <Navigate to="/" replace />;
 
-  return <AppShell>{element}</AppShell>;
+  return (
+    <PreferencesProvider>
+      <AppShell>{element}</AppShell>
+    </PreferencesProvider>
+  );
 };
 
 export default IdpApp;

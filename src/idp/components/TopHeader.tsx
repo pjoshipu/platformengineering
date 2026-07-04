@@ -141,10 +141,10 @@ export const TopHeader = () => {
             <div className="text-xs text-muted-foreground">{persona?.blurb}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => user && navigate(`/idp/${user.persona}/profile`)}>
             <User className="w-4 h-4 mr-2" /> Profile
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => user && navigate(`/idp/${user.persona}/settings`)}>
             <Settings className="w-4 h-4 mr-2" /> Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />

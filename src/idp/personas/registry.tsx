@@ -17,6 +17,8 @@ import Connectors from "../capabilities/connectors/Connectors";
 import Marketplace from "../capabilities/agents/Marketplace";
 import AgentDetail from "../capabilities/agents/AgentDetail";
 import AgentBuilder from "../capabilities/agents/AgentBuilder";
+import Profile from "../capabilities/profile/Profile";
+import Settings from "../capabilities/settings/Settings";
 import Docs from "../capabilities/docs/Docs";
 import Forum from "../capabilities/forum/Forum";
 import Board from "../capabilities/board/Board";
@@ -58,6 +60,9 @@ const SHARED_ROUTES: SharedRoute[] = [
   { path: "agents/build", element: <AgentBuilder /> },
   { path: "agents/:agentId", element: <AgentDetail /> },
   { path: "agents", element: <Marketplace /> },
+  // Reached from the top-header user menu (no sidebar nav entry)
+  { path: "profile", element: <Profile /> },
+  { path: "settings", element: <Settings /> },
   { path: "board", element: <Board /> },
   { path: "analytics", element: <Analytics /> },
   { path: "admin", element: <RoleManagement />, securityOnly: true },
