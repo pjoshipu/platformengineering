@@ -63,8 +63,10 @@ interface DemoRunnerProps {
   contextSummary?: string;
 }
 
+// Sent in the request body; ignored by the /api/claude proxy (which uses the
+// server-side ANTHROPIC_MODEL). Label is display-only.
 const CLAUDE_MODEL = "gpt-4o-mini";
-const CLAUDE_MODEL_LABEL = "GPT-4o Mini";
+const CLAUDE_MODEL_LABEL = "Claude";
 
 // Fallback UUID generator for environments where crypto.randomUUID is not available
 const generateUUID = (): string => {
