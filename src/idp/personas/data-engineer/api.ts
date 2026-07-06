@@ -198,7 +198,7 @@ const SEARCH_ASSETS: LineageNode[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Plugin overrides — CRUD from the Platform Console plugin (`/idp`) is written
+// Plugin overrides — CRUD from the Platform Console plugin (`/`) is written
 // to pipelines-overrides.json, keyed by persona id ("data-engineer"), and
 // merged on top of the built-in PIPELINES. Editing that JSON hot-reloads the
 // portal (Vite HMR), so plugin changes appear live.

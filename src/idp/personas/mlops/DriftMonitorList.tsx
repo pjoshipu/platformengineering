@@ -39,7 +39,7 @@ const DriftMonitorList = () => {
       header: "Actions",
       render: (r) => (
         <div onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/idp/mlops/drift/${r.id}`)}>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/mlops/drift/${r.id}`)}>
             View drift report
           </Button>
         </div>
@@ -58,7 +58,7 @@ const DriftMonitorList = () => {
         rows={rows}
         rowKey={(r) => r.id}
         loading={loading}
-        onRowClick={(r) => navigate(`/idp/mlops/drift/${r.id}`)}
+        onRowClick={(r) => navigate(`/mlops/drift/${r.id}`)}
       />
     </div>
   );

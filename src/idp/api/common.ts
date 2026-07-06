@@ -34,7 +34,7 @@ export async function getNotifications(): Promise<Notification[]> {
       created_at: minutesAgo(8),
       read: false,
       severity: "warning",
-      url: "/ai-engineer/canary/cn_1",
+      url: "/ai-engineer/canary/can_1",
     },
     {
       id: "n2",

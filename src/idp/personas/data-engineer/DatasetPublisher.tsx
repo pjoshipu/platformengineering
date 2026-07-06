@@ -105,7 +105,7 @@ const DatasetPublisher = () => {
     setSubmitting(false);
     if (piiOn) toast("Security team notified of PII columns", { icon: "🔒" });
     toast.success(`Dataset ${dataset_id} published to catalog`);
-    navigate("/idp/data-engineer/dashboard");
+    navigate("/data-engineer/dashboard");
   };
 
   return (
@@ -113,7 +113,7 @@ const DatasetPublisher = () => {
       <PageHeader
         title="Dataset Publisher"
         description="Publish a processed dataset to the catalog. The card preview shows how it will appear to consumers."
-        backTo="/idp/data-engineer/dashboard"
+        backTo="/data-engineer/dashboard"
         backLabel="Dashboard"
       />
 

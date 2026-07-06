@@ -241,7 +241,7 @@ const AgentBuilder = () => {
           ? `Submitted to Marketplace for review (${agent_id})`
           : `Agent published (${agent_id})`
       );
-      navigate(`/idp/${persona}/agents`);
+      navigate(`/${persona}/agents`);
     } catch {
       toast.error("Failed to publish agent");
     } finally {
@@ -733,7 +733,7 @@ const AgentBuilder = () => {
       <PageHeader
         title="Custom Agent Builder"
         description="Configure a new agent — identity, trigger, inputs, logic, tools, and safety — then sandbox-test and publish."
-        backTo={`/idp/${persona}/agents`}
+        backTo={`/${persona}/agents`}
         backLabel="Agent Marketplace"
       />
       <Wizard steps={steps} onSubmit={publish} submitLabel="Publish" submitting={submitting} />

@@ -173,7 +173,7 @@ const DeployAgent = () => {
   if (deploymentId) {
     return (
       <div>
-        <PageHeader title="Agent deployment" description={`Pipeline run for ${name}`} backTo="/idp/agentic-engineer/agents" backLabel="Agent Registry" />
+        <PageHeader title="Agent deployment" description={`Pipeline run for ${name}`} backTo="/agentic-engineer/agents" backLabel="Agent Registry" />
         <SectionCard title="Pipeline">
           {!status ? (
             <Loading label="Starting deployment…" />

@@ -98,7 +98,7 @@ const Dashboard = () => {
       <PageHeader
         title="Data Scientist Dashboard"
         description="Active training jobs, recent experiments, pending approvals, and dataset usage."
-        actions={<Button onClick={() => navigate("/idp/data-scientist/request")}>New Training Request</Button>}
+        actions={<Button onClick={() => navigate("/data-scientist/request")}>New Training Request</Button>}
       />
 
       <MetricsRow>
@@ -110,7 +110,7 @@ const Dashboard = () => {
           value={metrics?.pending_approvals ?? "—"}
           icon={CheckSquare}
           tone={metrics && metrics.pending_approvals > 0 ? "warning" : "good"}
-          onClick={() => navigate("/idp/data-scientist/approvals")}
+          onClick={() => navigate("/data-scientist/approvals")}
           actionLabel="Review"
         />
       </MetricsRow>
@@ -145,7 +145,7 @@ const Dashboard = () => {
             variant="outline"
             size="sm"
             className="w-full mt-1"
-            onClick={() => navigate("/idp/data-scientist/experiments")}
+            onClick={() => navigate("/data-scientist/experiments")}
           >
             View all
           </Button>

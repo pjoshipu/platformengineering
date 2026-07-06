@@ -81,7 +81,7 @@ const CATALOG: Record<string, CatalogRow[]> = {
 };
 
 /**
- * Runtime CRUD from the Platform Console plugin (`/idp`, `/catalog-add`) lives
+ * Runtime CRUD from the Platform Console plugin (`/`, `/catalog-add`) lives
  * in catalog-overrides.json, keyed by persona id. Each persona's value is a
  * ResourceOverrides record (added / updated / removed) merged on top of the
  * built-in CATALOG. Because this is a plain JSON module import, editing that

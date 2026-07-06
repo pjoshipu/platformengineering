@@ -39,7 +39,7 @@ const Profile = () => {
         title="Profile"
         description="Your identity and role in the platform."
         actions={
-          <Button variant="outline" onClick={() => navigate(`/idp/${persona}/settings`)}>
+          <Button variant="outline" onClick={() => navigate(`/${persona}/settings`)}>
             <SettingsIcon className="w-4 h-4 mr-2" />
             Settings
           </Button>

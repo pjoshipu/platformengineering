@@ -37,7 +37,7 @@ const AgentRegistry = () => {
       <PageHeader
         title="Agent Registry"
         description="Every registered autonomous agent, its runtime, bound tools, and version history."
-        actions={<Button onClick={() => navigate("/idp/agentic-engineer/deploy")}>Deploy Agent</Button>}
+        actions={<Button onClick={() => navigate("/agentic-engineer/deploy")}>Deploy Agent</Button>}
       />
       <DataTable columns={columns} rows={agents ?? []} rowKey={(a) => a.id} loading={loading} onRowClick={(a) => setSelected(a)} />
 

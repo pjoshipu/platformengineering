@@ -53,8 +53,8 @@ const DataEngineerDashboard = () => {
             Trigger now
           </Button>
           <Button variant="ghost" size="sm" onClick={() => toast(`Logs for ${p.name}`)}>View logs</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/idp/data-engineer/lineage")}>View lineage</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/idp/data-engineer/pipelines")}>Edit</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/data-engineer/lineage")}>View lineage</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/data-engineer/pipelines")}>Edit</Button>
         </div>
       ),
     },
@@ -65,7 +65,7 @@ const DataEngineerDashboard = () => {
       <PageHeader
         title="Data Engineer Dashboard"
         description="Health of your data pipelines, data quality alerts, feature store freshness, and dataset usage."
-        actions={<Button onClick={() => navigate("/idp/data-engineer/pipelines")}>New pipeline</Button>}
+        actions={<Button onClick={() => navigate("/data-engineer/pipelines")}>New pipeline</Button>}
       />
 
       <MetricsRow>
@@ -93,7 +93,7 @@ const DataEngineerDashboard = () => {
             rows={pipelines ?? []}
             rowKey={(p) => p.id}
             loading={loading}
-            onRowClick={() => navigate("/idp/data-engineer/pipelines")}
+            onRowClick={() => navigate("/data-engineer/pipelines")}
             defaultSort={{ key: "status", dir: "desc" }}
           />
         </div>
@@ -112,7 +112,7 @@ const DataEngineerDashboard = () => {
               </div>
             </div>
           ))}
-          <Button variant="outline" size="sm" className="w-full mt-1" onClick={() => navigate("/idp/data-engineer/quality")}>
+          <Button variant="outline" size="sm" className="w-full mt-1" onClick={() => navigate("/data-engineer/quality")}>
             View all checks
           </Button>
         </SidePanel>

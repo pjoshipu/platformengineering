@@ -114,7 +114,7 @@ const Marketplace = () => {
     setSort("Most used");
   };
 
-  const openAgent = (id: string) => navigate(`/idp/${personaId}/agents/${id}`);
+  const openAgent = (id: string) => navigate(`/${personaId}/agents/${id}`);
 
   const filterBar = (
     <div className="flex flex-wrap gap-2 mb-4">
@@ -214,7 +214,7 @@ const Marketplace = () => {
 
         <TabsContent value="custom" className="mt-4">
           <div className="flex justify-end mb-4">
-            <Button onClick={() => navigate(`/idp/${personaId}/agents/build`)}>
+            <Button onClick={() => navigate(`/${personaId}/agents/build`)}>
               Build new agent
             </Button>
           </div>

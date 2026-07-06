@@ -77,7 +77,7 @@ const DriftMonitor = () => {
       <PageHeader
         title={report ? `Drift · ${report.model_name}` : "Drift Monitor"}
         description="Feature drift, prediction drift, and retraining recommendation for the selected model."
-        backTo="/idp/mlops/drift"
+        backTo="/mlops/drift"
         backLabel="All models"
         actions={
           <Tabs value={range} onValueChange={setRange}>

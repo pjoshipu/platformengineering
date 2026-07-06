@@ -11,7 +11,7 @@ const Index = () => {
     return <Login />;
   }
 
-  return <Navigate to="/idp" replace />;
+  return <Navigate to="/" replace />;
 };
 
 export default Index;

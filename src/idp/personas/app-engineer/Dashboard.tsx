@@ -51,7 +51,7 @@ const AppEngineerDashboard = () => {
       <PageHeader
         title="App Engineer Dashboard"
         description="Status of your deployed services, GitOps sync health, and active deployments."
-        actions={<Button onClick={() => navigate("/idp/app-engineer/deploy")}>New Service Request</Button>}
+        actions={<Button onClick={() => navigate("/app-engineer/deploy")}>New Service Request</Button>}
       />
 
       <MetricsRow>
@@ -79,7 +79,7 @@ const AppEngineerDashboard = () => {
             rows={services ?? []}
             rowKey={(s) => s.id}
             loading={loading}
-            onRowClick={() => navigate("/idp/app-engineer/gitops")}
+            onRowClick={() => navigate("/app-engineer/gitops")}
           />
         </div>
 

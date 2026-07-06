@@ -189,7 +189,7 @@ const PipelineBuilder = () => {
     const { pipeline_id } = await createPipeline(buildConfig());
     setSubmitting(false);
     toast.success(`Pipeline ${pipeline_id} created`);
-    navigate("/idp/data-engineer/dashboard");
+    navigate("/data-engineer/dashboard");
   };
 
   const shortSource = useMemo(
@@ -202,7 +202,7 @@ const PipelineBuilder = () => {
       <PageHeader
         title="Pipeline Builder"
         description="Build & schedule a data pipeline. Compose a source, transformations, output and quality checks, then test-run on a sample."
-        backTo="/idp/data-engineer/dashboard"
+        backTo="/data-engineer/dashboard"
         backLabel="Dashboard"
       />
 

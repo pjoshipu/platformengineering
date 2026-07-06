@@ -57,7 +57,7 @@ const PromptRegistryLanding = () => {
         rows={apps ?? []}
         rowKey={(a) => a.id}
         loading={loading}
-        onRowClick={(a) => navigate(`/idp/ai-engineer/prompts/${a.id}`)}
+        onRowClick={(a) => navigate(`/ai-engineer/prompts/${a.id}`)}
       />
     </div>
   );
@@ -119,7 +119,7 @@ const PromptRegistryDetail = ({ appId }: { appId: string }) => {
     const { canary_id } = await deployPrompt(appId);
     toast.success(`Submitted ${draftVersion} for canary`);
     setProposing(false);
-    navigate(`/idp/ai-engineer/canary/${canary_id}`);
+    navigate(`/ai-engineer/canary/${canary_id}`);
   };
 
   const doRollback = async () => {
@@ -160,7 +160,7 @@ const PromptRegistryDetail = ({ appId }: { appId: string }) => {
       <PageHeader
         title={`Prompt Registry — ${app?.name ?? appId}`}
         description="Version history, diffs against prod, and eval metrics."
-        backTo="/idp/ai-engineer/prompts"
+        backTo="/ai-engineer/prompts"
         backLabel="All apps"
         actions={
           <div className="flex items-center gap-2">

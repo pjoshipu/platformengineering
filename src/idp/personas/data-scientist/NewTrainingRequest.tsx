@@ -311,7 +311,7 @@ const NewTrainingRequest = () => {
         <PageHeader
           title="Training job status"
           description={`Pipeline run for ${name}`}
-          backTo="/idp/data-scientist/dashboard"
+          backTo="/data-scientist/dashboard"
           backLabel="Dashboard"
         />
         <SectionCard title="Pipeline">

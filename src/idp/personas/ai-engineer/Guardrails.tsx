@@ -51,7 +51,7 @@ const GuardrailsLanding = () => {
   return (
     <div>
       <PageHeader title="Guardrails" description="Select an app to configure its safety, cost, and quality guardrails." />
-      <DataTable columns={columns} rows={apps ?? []} rowKey={(a) => a.id} loading={loading} onRowClick={(a) => navigate(`/idp/ai-engineer/guardrails/${a.id}`)} />
+      <DataTable columns={columns} rows={apps ?? []} rowKey={(a) => a.id} loading={loading} onRowClick={(a) => navigate(`/ai-engineer/guardrails/${a.id}`)} />
     </div>
   );
 };
@@ -214,7 +214,7 @@ const GuardrailsDetail = ({ appId }: { appId: string }) => {
       <PageHeader
         title={`Guardrails — ${app?.name ?? appId}`}
         description="Enable, tune, and test the guardrails protecting this LLM app."
-        backTo="/idp/ai-engineer/guardrails"
+        backTo="/ai-engineer/guardrails"
         backLabel="All apps"
       />
 

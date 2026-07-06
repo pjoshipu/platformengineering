@@ -105,7 +105,7 @@ const QUICK_ACTIONS: Record<string, QuickAction[]> = {
 
 const ACTIVITY: Record<string, ActivityItem[]> = {
   "ai-engineer": [
-    { id: "a1", dot_color: "amber", title: "support-rag-agent canary", subtitle: "Running · 20% traffic · 12m ago", url: "/ai-engineer/canary/cn_1" },
+    { id: "a1", dot_color: "amber", title: "support-rag-agent canary", subtitle: "Running · 20% traffic · 12m ago", url: "/ai-engineer/canary/can_1" },
     { id: "a2", dot_color: "red", title: "Approval pending", subtitle: "churn-model-v3 → prod", url: "/data-scientist/models" },
     { id: "a3", dot_color: "green", title: "api-gateway deployed", subtitle: "Healthy · 2h ago", url: "/app-engineer/dashboard" },
     { id: "a4", dot_color: "green", title: "Prompt v1.4.0 live", subtitle: "AUC 0.91 · 3h ago", url: "/ai-engineer/prompts/app_rag_1" },

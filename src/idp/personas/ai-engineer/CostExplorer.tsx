@@ -88,7 +88,7 @@ const CostExplorer = () => {
           rowKey={(r) => r.id}
           loading={loading}
           defaultSort={{ key: "cost_day", dir: "desc" }}
-          onRowClick={(r) => navigate(`/idp/ai-engineer/observe/${r.id}`)}
+          onRowClick={(r) => navigate(`/ai-engineer/observe/${r.id}`)}
         />
       </div>
     </div>

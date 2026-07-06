@@ -72,7 +72,7 @@ const AgentDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const persona = user?.persona ?? "";
-  const backLink = `/idp/${persona}/agents`;
+  const backLink = `/${persona}/agents`;
 
   const { data: agent, loading } = useMockQuery(
     () => (agentId ? getAgent(agentId) : Promise.resolve(undefined)),

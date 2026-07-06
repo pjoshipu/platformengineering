@@ -45,7 +45,7 @@ const ObserveLanding = () => {
   return (
     <div>
       <PageHeader title="LLM Observability" description="Select an app to inspect calls, latency, cost, quality, and traces." />
-      <DataTable columns={columns} rows={apps ?? []} rowKey={(a) => a.id} loading={loading} onRowClick={(a) => navigate(`/idp/ai-engineer/observe/${a.id}`)} />
+      <DataTable columns={columns} rows={apps ?? []} rowKey={(a) => a.id} loading={loading} onRowClick={(a) => navigate(`/ai-engineer/observe/${a.id}`)} />
     </div>
   );
 };
@@ -100,7 +100,7 @@ const ObserveDetail = ({ appId }: { appId: string }) => {
       <PageHeader
         title={`Observability — ${app?.name ?? appId}`}
         description={app ? `${app.type} · ${app.model}` : undefined}
-        backTo="/idp/ai-engineer/observe"
+        backTo="/ai-engineer/observe"
         backLabel="All apps"
         actions={rangeSelector(range, setRange)}
       />

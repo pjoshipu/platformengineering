@@ -92,7 +92,7 @@ const AiEngineerDashboard = () => {
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="sm" onClick={() => setPipelineApp(a)}>View pipeline</Button>
           <Button variant="ghost" size="sm" onClick={() => { setRollbackTarget(a); setRollbackVersion(""); }}>Rollback</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/idp/ai-engineer/observe/${a.id}`)}>View logs</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/ai-engineer/observe/${a.id}`)}>View logs</Button>
         </div>
       ),
     },
@@ -143,7 +143,7 @@ const AiEngineerDashboard = () => {
       <PageHeader
         title="AI Engineer Dashboard"
         description="Health of your deployed LLM applications, active canaries, cost, and quality."
-        actions={<Button onClick={() => navigate("/idp/ai-engineer/deploy")}>Deploy LLM App</Button>}
+        actions={<Button onClick={() => navigate("/ai-engineer/deploy")}>Deploy LLM App</Button>}
       />
 
       <MetricsRow>
@@ -153,7 +153,7 @@ const AiEngineerDashboard = () => {
           value={metrics?.active_canaries ?? "—"}
           icon={GitCompare}
           tone="highlight"
-          onClick={() => navigate("/idp/ai-engineer/canary")}
+          onClick={() => navigate("/ai-engineer/canary")}
           actionLabel="View"
         />
         <MetricCard
@@ -182,7 +182,7 @@ const AiEngineerDashboard = () => {
             loading={loading}
             toolbar={toolbar}
             defaultSort={{ key: "cost_day", dir: "desc" }}
-            onRowClick={(a) => navigate(`/idp/ai-engineer/observe/${a.id}`)}
+            onRowClick={(a) => navigate(`/ai-engineer/observe/${a.id}`)}
           />
         </div>
 
@@ -197,7 +197,7 @@ const AiEngineerDashboard = () => {
               <div className="text-sm font-medium leading-snug">{inc.title}</div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{inc.app_name}</span>
-                <button className="text-xs font-medium text-primary" onClick={() => navigate(`/idp/ai-engineer/observe/${inc.app_id}`)}>
+                <button className="text-xs font-medium text-primary" onClick={() => navigate(`/ai-engineer/observe/${inc.app_id}`)}>
                   Investigate →
                 </button>
               </div>
@@ -238,8 +238,8 @@ const AiEngineerDashboard = () => {
               </ol>
             </SectionCard>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => { navigate(`/idp/ai-engineer/prompts/${pipelineApp.id}`); }}>Prompt registry</Button>
-              <Button variant="outline" className="flex-1" onClick={() => navigate(`/idp/ai-engineer/observe/${pipelineApp.id}`)}>Observability</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { navigate(`/ai-engineer/prompts/${pipelineApp.id}`); }}>Prompt registry</Button>
+              <Button variant="outline" className="flex-1" onClick={() => navigate(`/ai-engineer/observe/${pipelineApp.id}`)}>Observability</Button>
             </div>
           </>
         )}

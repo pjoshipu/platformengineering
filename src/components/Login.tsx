@@ -23,7 +23,7 @@ const Login = () => {
     if (!persona) return;
     login({ persona: persona.id, name: persona.label });
     const first = persona.nav[0]?.path ?? 'dashboard';
-    navigate(`/idp/${persona.id}/${first}`);
+    navigate(`/${persona.id}/${first}`);
   };
 
   const selected = PERSONA_MODULES.find((p) => p.id === selectedPersona);

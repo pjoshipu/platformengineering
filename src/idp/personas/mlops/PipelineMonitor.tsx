@@ -57,7 +57,7 @@ const PipelineMonitor = () => {
             Trigger now
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSelected(p)}>View runs</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/idp/mlops/drift/${p.model_id}`)}>View drift</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/mlops/drift/${p.model_id}`)}>View drift</Button>
         </div>
       ),
     },

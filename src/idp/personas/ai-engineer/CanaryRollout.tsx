@@ -49,7 +49,7 @@ const CanaryLanding = () => {
   return (
     <div>
       <PageHeader title="Canary Rollout" description="Active canary deployments. Select one to inspect traffic split, gates, and logs." />
-      <DataTable columns={columns} rows={canaries ?? []} rowKey={(c) => c.id} loading={loading} onRowClick={(c) => navigate(`/idp/ai-engineer/canary/${c.id}`)} />
+      <DataTable columns={columns} rows={canaries ?? []} rowKey={(c) => c.id} loading={loading} onRowClick={(c) => navigate(`/ai-engineer/canary/${c.id}`)} />
     </div>
   );
 };
@@ -144,13 +144,13 @@ const CanaryDetail = ({ canaryId }: { canaryId: string }) => {
     }
     await promoteCanary(canaryId, overrideReason || undefined);
     toast.success(`Promoting ${canary.canary_version} to 100%`);
-    navigate("/idp/ai-engineer/dashboard");
+    navigate("/ai-engineer/dashboard");
   };
 
   const doRollback = async () => {
     await rollbackCanary(canaryId);
     toast.success(`Rolled back ${canary.app_name} canary`);
-    navigate("/idp/ai-engineer/dashboard");
+    navigate("/ai-engineer/dashboard");
   };
 
   return (
@@ -158,7 +158,7 @@ const CanaryDetail = ({ canaryId }: { canaryId: string }) => {
       <PageHeader
         title={`Canary — ${canary.app_name}`}
         description={`${100 - split}% ${canary.prod_version} / ${split}% ${canary.canary_version}`}
-        backTo="/idp/ai-engineer/canary"
+        backTo="/ai-engineer/canary"
         backLabel="Active canaries"
       />
 

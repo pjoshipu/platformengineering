@@ -96,7 +96,7 @@ service:
   if (deploymentId) {
     return (
       <div>
-        <PageHeader title="Deployment status" description={`Pipeline run for ${name}`} backTo="/idp/app-engineer/my-services" backLabel="My Services" />
+        <PageHeader title="Deployment status" description={`Pipeline run for ${name}`} backTo="/app-engineer/my-services" backLabel="My Services" />
         <SectionCard title="Pipeline">
           {!status ? (
             <Loading label="Starting pipeline…" />

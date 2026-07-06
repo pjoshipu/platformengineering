@@ -34,7 +34,7 @@ const AgenticDashboard = () => {
       header: "Actions",
       render: (a) => (
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/idp/agentic-engineer/runs")}>Runs</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/agentic-engineer/runs")}>Runs</Button>
           <Button variant="ghost" size="sm" onClick={() => toast(a.status === "Paused" ? `Resuming ${a.name}` : `Pausing ${a.name}`)}>
             {a.status === "Paused" ? "Resume" : "Pause"}
           </Button>
@@ -48,7 +48,7 @@ const AgenticDashboard = () => {
       <PageHeader
         title="Agentic Engineer Dashboard"
         description="Your autonomous agents, their live runs, autonomy budget, and human-in-the-loop checkpoints."
-        actions={<Button onClick={() => navigate("/idp/agentic-engineer/deploy")}>Deploy Agent</Button>}
+        actions={<Button onClick={() => navigate("/agentic-engineer/deploy")}>Deploy Agent</Button>}
       />
 
       <MetricsRow>
@@ -59,7 +59,7 @@ const AgenticDashboard = () => {
           value={metrics?.pending_checkpoints ?? "—"}
           icon={ShieldQuestion}
           tone={metrics && metrics.pending_checkpoints > 0 ? "warning" : "good"}
-          onClick={() => navigate("/idp/agentic-engineer/autonomy")}
+          onClick={() => navigate("/agentic-engineer/autonomy")}
           actionLabel="review"
         />
         <MetricCard
@@ -79,7 +79,7 @@ const AgenticDashboard = () => {
             rows={agents ?? []}
             rowKey={(a) => a.id}
             loading={loading}
-            onRowClick={() => navigate("/idp/agentic-engineer/agents")}
+            onRowClick={() => navigate("/agentic-engineer/agents")}
           />
         </div>
 
@@ -94,7 +94,7 @@ const AgenticDashboard = () => {
               <p className="text-xs text-muted-foreground mt-0.5">{c.action}</p>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] text-muted-foreground">{timeAgo(c.requested_at)}</span>
-                <button className="text-xs font-medium text-primary" onClick={() => navigate("/idp/agentic-engineer/autonomy")}>
+                <button className="text-xs font-medium text-primary" onClick={() => navigate("/agentic-engineer/autonomy")}>
                   Review →
                 </button>
               </div>

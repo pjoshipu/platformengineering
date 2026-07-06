@@ -53,9 +53,9 @@ const MlopsDashboard = () => {
           >
             Trigger now
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/idp/mlops/pipelines")}>View runs</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/idp/mlops/drift/${p.model_id}`)}>Drift report</Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/idp/mlops/retraining-rules")}>Edit schedule</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/mlops/pipelines")}>View runs</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/mlops/drift/${p.model_id}`)}>Drift report</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/mlops/retraining-rules")}>Edit schedule</Button>
         </div>
       ),
     },
@@ -66,7 +66,7 @@ const MlopsDashboard = () => {
       <PageHeader
         title="MLOps Dashboard"
         description="Operational health of ML pipelines, drift alerts, scheduled retraining, and infra usage."
-        actions={<Button onClick={() => navigate("/idp/mlops/pipelines")}>Pipeline Monitor</Button>}
+        actions={<Button onClick={() => navigate("/mlops/pipelines")}>Pipeline Monitor</Button>}
       />
 
       <MetricsRow>
@@ -99,7 +99,7 @@ const MlopsDashboard = () => {
             rows={pipelines ?? []}
             rowKey={(p) => p.id}
             loading={loading}
-            onRowClick={(p) => navigate(`/idp/mlops/drift/${p.model_id}`)}
+            onRowClick={(p) => navigate(`/mlops/drift/${p.model_id}`)}
           />
         </div>
 
@@ -120,7 +120,7 @@ const MlopsDashboard = () => {
                 variant="link"
                 size="sm"
                 className="h-auto p-0"
-                onClick={() => navigate(`/idp/mlops/drift/${a.model_id}`)}
+                onClick={() => navigate(`/mlops/drift/${a.model_id}`)}
               >
                 Investigate
               </Button>

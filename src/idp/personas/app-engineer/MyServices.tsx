@@ -65,7 +65,7 @@ const MyServices = () => {
       <PageHeader
         title="My Services"
         description="All services you own across environments."
-        actions={<Button onClick={() => navigate("/idp/app-engineer/deploy")}>New Service Request</Button>}
+        actions={<Button onClick={() => navigate("/app-engineer/deploy")}>New Service Request</Button>}
       />
       <DataTable columns={columns} rows={rows} rowKey={(s) => s.id} loading={loading} toolbar={toolbar} />
     </div>
