@@ -36,9 +36,10 @@ const AgenticExperience = () => {
   );
 
   if (selected) {
+    // DemoRunner renders its own title, description, and close control, so we
+    // don't add a PageHeader here (that duplicated the whole header block).
     return (
       <div>
-        <PageHeader title={selected.title} description={selected.description} />
         <Button variant="ghost" size="sm" className="mb-4" onClick={() => setSelectedId(null)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to agents

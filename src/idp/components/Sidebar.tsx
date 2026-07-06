@@ -1,8 +1,15 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, ChevronsUpDown, ArrowRight } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { PersonaModule, IdpNavItem } from "../types";
 import { usePreferences } from "../preferences";
+import { useAuth } from "@/contexts/AuthContext";
+import { PERSONA_MODULES } from "../personas/registry";
+import { useJourney } from "../state/journey";
 
 interface SidebarProps {
   persona?: PersonaModule;
@@ -24,6 +31,9 @@ const GROUP_ORDER = [
 export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
   const PersonaIcon = persona?.icon;
   const { isHidden } = usePreferences();
+  const { setPersona } = useAuth();
+  const navigate = useNavigate();
+  const journey = useJourney();
 
   // Group nav items into sections so the (now long) sidebar stays scannable.
   // Items the user hid in Settings are filtered out here.
@@ -38,6 +48,7 @@ export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
     ...GROUP_ORDER.filter((g) => byGroup.has(g)),
     ...[...byGroup.keys()].filter((g) => !GROUP_ORDER.includes(g)),
   ].map((group) => ({ group, items: byGroup.get(group)! }));
+
   return (
     <aside
       className={cn(
@@ -45,36 +56,76 @@ export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
         collapsed ? "w-16" : "w-60"
       )}
     >
-      {/* Active persona context (fixed by login — no switching) */}
+      {/* Persona switcher (shared "idp_persona" state) */}
       <div className="p-3">
-        <div
-          className={cn(
-            "flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2",
-            collapsed && "justify-center px-2"
-          )}
-          title={collapsed ? persona?.label : undefined}
-        >
-          {PersonaIcon && <PersonaIcon className="w-4 h-4 text-primary shrink-0" />}
-          {!collapsed && (
-            <span className="min-w-0">
-              <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
-                Workspace
-              </span>
-              <span className="block font-medium truncate">{persona?.label}</span>
-            </span>
-          )}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 hover:border-brand-border",
+                collapsed && "justify-center px-2"
+              )}
+              title={collapsed ? persona?.label : undefined}
+            >
+              {PersonaIcon && <PersonaIcon className="w-4 h-4 text-brand-purple shrink-0" />}
+              {!collapsed && (
+                <>
+                  <span className="min-w-0 flex-1 text-left">
+                    <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">Workspace</span>
+                    <span className="block font-medium truncate">{persona?.label}</span>
+                  </span>
+                  <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                </>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>Switch persona</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {PERSONA_MODULES.map((p) => {
+              const Icon = p.icon;
+              return (
+                <DropdownMenuItem
+                  key={p.id}
+                  onClick={() => { setPersona(p.id); navigate(`/${p.id}/dashboard`); }}
+                  className={cn(persona?.id === p.id && "text-brand-purple")}
+                >
+                  <Icon className="w-4 h-4 mr-2" /> {p.label}
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <nav className="flex-1 px-2 py-1 overflow-y-auto">
+        {/* Home — links back to the front door (spec Connection 7b) */}
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+              collapsed && "justify-center px-2",
+              isActive
+                ? "bg-brand-tint text-brand-purple font-medium"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )
+          }
+          title={collapsed ? "Home" : undefined}
+        >
+          <Home className="w-4 h-4 shrink-0" />
+          {!collapsed && <span className="truncate">Home</span>}
+        </NavLink>
+
         {orderedGroups.map(({ group, items }, gi) => (
-          <div key={group} className={cn(gi > 0 && "mt-2")}>
+          <div key={group} className="mt-2">
             {!collapsed ? (
               <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 {group}
               </div>
             ) : (
-              gi > 0 && <div className="mx-2 my-2 border-t border-border" />
+              <div className="mx-2 my-2 border-t border-border" />
             )}
             <div className="space-y-0.5">
               {items.map((item) => {
@@ -82,13 +133,13 @@ export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
                 return (
                   <NavLink
                     key={item.path}
-                    to={`/idp/${persona!.id}/${item.path}`}
+                    to={`/${persona!.id}/${item.path}`}
                     className={({ isActive }) =>
                       cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                         collapsed && "justify-center px-2",
                         isActive
-                          ? "bg-primary/10 text-primary font-medium"
+                          ? "bg-brand-tint text-brand-purple font-medium"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )
                     }
@@ -103,6 +154,28 @@ export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
           </div>
         ))}
       </nav>
+
+      {/* Journey progress (spec Connection 7d) */}
+      {journey.journey && !collapsed && (
+        <div className="m-2 rounded-lg border border-brand-border bg-brand-tint/50 p-2.5">
+          <div className="text-[11px] font-medium text-brand-purple truncate">{journey.journey.title}</div>
+          <div className="mt-1 text-[10px] text-muted-foreground">
+            Step {journey.step + 1} of {journey.journey.steps.length}
+          </div>
+          <div className="mt-1 h-1 w-full rounded-full bg-border">
+            <div
+              className="h-1 rounded-full bg-brand-purple transition-all"
+              style={{ width: `${((journey.step + 1) / journey.journey.steps.length) * 100}%` }}
+            />
+          </div>
+          <button
+            onClick={() => navigate(journey.journey!.steps[journey.step].url)}
+            className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-brand-purple hover:underline"
+          >
+            Continue <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+      )}
 
       <button
         onClick={onToggle}

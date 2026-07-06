@@ -18,6 +18,9 @@ dist-ssr
 # Local GCP pipeline config (project IDs, buckets — not for VCS)
 .gcp-pipeline-config.md
 
+# Platform Console remembered persona (per-user runtime, not for VCS)
+.claude/platform-console.local.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

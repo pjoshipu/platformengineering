@@ -1,7 +1,7 @@
 {
   "name": "platform-console",
   "version": "1.0.0",
-  "description": "Admin Console for Platform Engineering: the 8 platform-engineering AI agents (onboarding, CI/CD diagnostic, release readiness, feature flags, security, cost, incident, developer portal) as slash commands.",
+  "description": "Admin Console for Platform Engineering: a single front door (/admin catalog + /orchestrate orchestrator layer) over 8 AI agents and a specialist/foundational platform layer (Application, Data, AI, Infrastructure). Platforms expose stubbed connectors with dummy data, the orchestrator narrates cross-layer calls (AI -> Data -> Infra), and a self-service mode lets the AI platform use paved-road defaults to reduce infra-team dependency.",
   "author": {
     "name": "BCG Platform Engineering Course",
     "email": "joshipura.pranav@bcg.com"

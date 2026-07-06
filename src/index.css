@@ -42,7 +42,12 @@ All colors MUST be HSL.
     --tech-orange: 25 95% 53%;
     --success: 142 76% 56%;
     --warning: 38 92% 50%;
-    
+
+    /* IDP brand purple (homepage front door). #534AB7 / tint #EEEDFE / border #7F77DD */
+    --brand-purple: 245 43% 50%;
+    --brand-tint: 245 85% 96%;
+    --brand-border: 245 60% 67%;
+
     --gradient-primary: linear-gradient(135deg, hsl(189 85% 50%) 0%, hsl(142 76% 60%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(262 70% 60%) 0%, hsl(189 85% 50%) 100%);
     --gradient-glow: radial-gradient(circle at center, hsl(189 85% 50% / 0.25) 0%, transparent 70%);
@@ -80,6 +85,11 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Brand purple tuned for dark surfaces */
+    --brand-purple: 245 75% 72%;
+    --brand-tint: 245 40% 18%;
+    --brand-border: 245 40% 42%;
   }
 }
 

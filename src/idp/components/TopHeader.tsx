@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Boxes, Bell, Search, Settings, User, LogOut } from "lucide-react";
+import { Boxes, Bell, Search, Settings, User, LogOut, Repeat } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAuth } from "@/contexts/AuthContext";
 import { useMockQuery, timeAgo } from "../api/client";
 import { getNotifications, globalSearch } from "../api/common";
-import { getPersonaModule } from "../personas/registry";
+import { getPersonaModule, PERSONA_MODULES } from "../personas/registry";
 import { cn } from "@/lib/utils";
 
 const SEVERITY_DOT: Record<string, string> = {
@@ -25,19 +25,42 @@ const SEVERITY_DOT: Record<string, string> = {
   critical: "bg-destructive",
 };
 
+const RECENT_KEY = "idp_search_recent";
+
+const readRecents = (): string[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+};
+
 export const TopHeader = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, setPersona } = useAuth();
   const persona = user ? getPersonaModule(user.persona) : undefined;
   const { data: notifications } = useMockQuery(getNotifications, []);
   const unread = notifications?.filter((n) => !n.read).length ?? 0;
 
   const [query, setQuery] = useState("");
-  // Search is scoped to the logged-in persona — you only see your own assets.
-  const { data: allResults } = useMockQuery(() => globalSearch(query), [query]);
-  const results = (allResults ?? []).filter(
-    (r) => !user || r.path.startsWith(`/${user.persona}`)
-  );
+  const [focused, setFocused] = useState(false);
+  const [recents, setRecents] = useState<string[]>(() => readRecents());
+  // Search is global across the whole portal (spec top bar).
+  const { data: results } = useMockQuery(() => globalSearch(query), [query]);
+
+  const pushRecent = (label: string) => {
+    const next = [label, ...recents.filter((r) => r !== label)].slice(0, 5);
+    setRecents(next);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  };
+
+  const go = (path: string, label?: string) => {
+    if (label) pushRecent(label);
+    setQuery("");
+    setFocused(false);
+    navigate(path);
+  };
 
   const initials = (user?.name ?? "U")
     .split(" ")
@@ -45,27 +68,32 @@ export const TopHeader = () => {
     .slice(0, 2)
     .join("");
 
+  const showRecents = focused && query.trim().length === 0 && recents.length > 0;
+  const showResults = query.trim().length > 0;
+
   return (
     <header className="h-14 shrink-0 border-b border-border bg-card flex items-center gap-3 px-4">
-      {/* Logo */}
-      <Link to="/idp" className="flex items-center gap-2 font-semibold shrink-0">
-        <div className="p-1.5 rounded-lg bg-primary/10">
-          <Boxes className="w-5 h-5 text-primary" />
+      {/* Logo → homepage */}
+      <Link to="/" className="flex items-center gap-2 font-semibold shrink-0">
+        <div className="p-1.5 rounded-lg bg-brand-tint">
+          <Boxes className="w-5 h-5 text-brand-purple" />
         </div>
         <span className="hidden sm:inline">Platform IDP</span>
       </Link>
 
       {/* Global search */}
       <div className="flex-1 max-w-xl mx-auto relative">
-        <Popover open={query.length > 0}>
+        <Popover open={showResults || showRecents}>
           <PopoverTrigger asChild>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search apps, models, pipelines, policies…"
-                className="pl-9"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setTimeout(() => setFocused(false), 150)}
+                placeholder="Search templates, agents, docs..."
+                className="pl-9 focus-visible:ring-brand-purple"
               />
             </div>
           </PopoverTrigger>
@@ -74,24 +102,42 @@ export const TopHeader = () => {
             className="w-[--radix-popover-trigger-width] p-1"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
-            {results && results.length > 0 ? (
-              results.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    navigate(`/idp${r.path}`);
-                    setQuery("");
-                  }}
-                  className="w-full flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted text-left"
-                >
-                  <span>{r.label}</span>
-                  <Badge variant="secondary" className="text-[10px] capitalize">
-                    {r.kind}
-                  </Badge>
-                </button>
-              ))
+            {showResults ? (
+              (results ?? []).length > 0 ? (
+                (results ?? []).map((r) => (
+                  <button
+                    key={r.id}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => go(r.path, r.label)}
+                    className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted text-left"
+                  >
+                    <Badge variant="secondary" className="text-[10px] capitalize shrink-0">{r.kind}</Badge>
+                    <span className="flex-1 truncate">{r.label}</span>
+                    {r.persona && (
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        {getPersonaModule(r.persona)?.label ?? r.persona}
+                      </span>
+                    )}
+                  </button>
+                ))
+              ) : (
+                <p className="px-2 py-3 text-sm text-muted-foreground">No matches</p>
+              )
             ) : (
-              <p className="px-2 py-3 text-sm text-muted-foreground">No matches</p>
+              <>
+                <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Recent</div>
+                {recents.map((rq) => (
+                  <button
+                    key={rq}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setQuery(rq)}
+                    className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted text-left"
+                  >
+                    <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="truncate">{rq}</span>
+                  </button>
+                ))}
+              </>
             )}
           </PopoverContent>
         </Popover>
@@ -113,7 +159,7 @@ export const TopHeader = () => {
           <DropdownMenuLabel>Notifications</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {(notifications ?? []).map((n) => (
-            <DropdownMenuItem key={n.id} className="flex items-start gap-2 py-2">
+            <DropdownMenuItem key={n.id} className="flex items-start gap-2 py-2" onClick={() => navigate(n.url)}>
               <span className={cn("mt-1 h-2 w-2 rounded-full shrink-0", SEVERITY_DOT[n.severity])} />
               <div className="min-w-0">
                 <div className="text-sm font-medium">{n.title}</div>
@@ -130,7 +176,7 @@ export const TopHeader = () => {
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-lg hover:bg-muted p-1 pr-2">
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="text-xs bg-primary/15 text-primary">{initials}</AvatarFallback>
+              <AvatarFallback className="text-xs bg-brand-tint text-brand-purple">{initials}</AvatarFallback>
             </Avatar>
             <span className="hidden md:block text-sm font-medium">{user?.name}</span>
           </button>
@@ -141,20 +187,31 @@ export const TopHeader = () => {
             <div className="text-xs text-muted-foreground">{persona?.blurb}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => user && navigate(`/idp/${user.persona}/profile`)}>
+          <DropdownMenuItem onClick={() => user && navigate(`/${user.persona}/profile`)}>
             <User className="w-4 h-4 mr-2" /> Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => user && navigate(`/idp/${user.persona}/settings`)}>
+          <DropdownMenuItem onClick={() => user && navigate(`/${user.persona}/settings`)}>
             <Settings className="w-4 h-4 mr-2" /> Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-          >
-            <LogOut className="w-4 h-4 mr-2" /> Logout
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <span className="flex items-center gap-1"><Repeat className="w-3 h-3" /> Switch persona</span>
+          </DropdownMenuLabel>
+          {PERSONA_MODULES.map((p) => {
+            const Icon = p.icon;
+            return (
+              <DropdownMenuItem
+                key={p.id}
+                onClick={() => { setPersona(p.id); navigate(`/${p.id}/dashboard`); }}
+                className={cn(user?.persona === p.id && "text-brand-purple")}
+              >
+                <Icon className="w-4 h-4 mr-2" /> {p.label}
+              </DropdownMenuItem>
+            );
+          })}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate("/")}>
+            <LogOut className="w-4 h-4 mr-2" /> Home
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

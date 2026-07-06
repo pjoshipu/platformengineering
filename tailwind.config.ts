@@ -54,6 +54,9 @@ export default {
         "tech-orange": "hsl(var(--tech-orange))",
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
+        "brand-purple": "hsl(var(--brand-purple))",
+        "brand-tint": "hsl(var(--brand-tint))",
+        "brand-border": "hsl(var(--brand-border))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

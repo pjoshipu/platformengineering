@@ -341,7 +341,7 @@ const DeployLlmApp = () => {
         <PageHeader
           title="Deployment status"
           description={`Pipeline run for ${name}`}
-          backTo="/idp/ai-engineer/dashboard"
+          backTo="/ai-engineer/dashboard"
           backLabel="Dashboard"
         />
         <SectionCard title="Pipeline">

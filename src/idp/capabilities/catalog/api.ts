@@ -1,4 +1,6 @@
 import { delay, daysAgo, hoursAgo, minutesAgo } from "../../api/client";
+import { applyOverrides, normalizeOverrides, type ResourceOverrides } from "../../api/overrides";
+import overridesJson from "./catalog-overrides.json";
 
 /**
  * Capability 1.1 — Software Catalogs (persona-parameterized mock).
@@ -78,9 +80,24 @@ const CATALOG: Record<string, CatalogRow[]> = {
   ],
 };
 
+/**
+ * Runtime CRUD from the Platform Console plugin (`/idp`, `/catalog-add`) lives
+ * in catalog-overrides.json, keyed by persona id. Each persona's value is a
+ * ResourceOverrides record (added / updated / removed) merged on top of the
+ * built-in CATALOG. Because this is a plain JSON module import, editing that
+ * file triggers a Vite HMR update — changes show up in the running portal live,
+ * with no restart.
+ */
+const OVERRIDES = overridesJson as Record<string, ResourceOverrides<CatalogRow> | CatalogRow[]>;
+
+/** Built-in rows for a persona with the plugin's overrides applied. */
+function rowsFor(personaId: string): CatalogRow[] {
+  return applyOverrides(CATALOG[personaId] ?? [], normalizeOverrides<CatalogRow>(OVERRIDES[personaId]));
+}
+
 export async function getCatalog(personaId: string, filters: CatalogFilters = {}): Promise<CatalogRow[]> {
   await delay();
-  const rows = CATALOG[personaId] ?? [];
+  const rows = rowsFor(personaId);
   const q = (filters.q ?? "").trim().toLowerCase();
   return rows.filter(
     (r) =>
@@ -95,7 +112,7 @@ export async function getCatalogAsset(
   assetId: string
 ): Promise<(CatalogRow & { description: string }) | undefined> {
   await delay(200);
-  const row = (CATALOG[personaId] ?? []).find((r) => r.id === assetId);
+  const row = rowsFor(personaId).find((r) => r.id === assetId);
   if (!row) return undefined;
   return {
     ...row,

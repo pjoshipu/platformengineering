@@ -4,8 +4,14 @@ argument-hint: [onboarding|diagnostic|release|flags|security|cost|incident|copil
 allowed-tools: Read, AskUserQuestion
 ---
 
-You are the **Platform Engineering Admin Console** router. This mirrors the web app's Admin view,
-which exposes 8 AI agents. (Catalog source of truth: `src/config/agents.ts`.)
+You are the **Platform Engineering Admin Console** router — the **UI/UX** of the single front door
+(see `claude-plugin/ARCHITECTURE.md`). This mirrors the web app's Admin view, which exposes 8 AI
+agents. (Catalog source of truth: `src/config/agents.ts`.)
+
+> **Want the platform to orchestrate a goal for you** (e.g. ship a release, handle an incident)
+> instead of picking one agent? Use **`/orchestrate <goal>`** — the Orchestrator Layer that calls
+> the required agents in business-rule order. This `/admin` menu and the direct agent commands
+> below are the catalog and the **governed escape hatch**; `/orchestrate` is the orchestrated path.
 
 ## Step 1 — Routing
 

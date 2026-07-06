@@ -1,4 +1,6 @@
 import { delay, uid, minutesAgo, hoursAgo, daysAgo } from "../../api/client";
+import { applyOverrides, normalizeOverrides, type ResourceOverrides } from "../../api/overrides";
+import pipelineOverridesJson from "./pipelines-overrides.json";
 
 /**
  * Mock API for the Data Engineer persona. All GET endpoints return realistic
@@ -196,12 +198,29 @@ const SEARCH_ASSETS: LineageNode[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Plugin overrides — CRUD from the Platform Console plugin (`/idp`) is written
+// to pipelines-overrides.json, keyed by persona id ("data-engineer"), and
+// merged on top of the built-in PIPELINES. Editing that JSON hot-reloads the
+// portal (Vite HMR), so plugin changes appear live.
+// ---------------------------------------------------------------------------
+
+const PIPELINE_OVERRIDES = pipelineOverridesJson as Record<
+  string,
+  ResourceOverrides<Pipeline> | Pipeline[]
+>;
+
+/** Built-in pipelines with the plugin's overrides applied. */
+function pipelineRows(): Pipeline[] {
+  return applyOverrides(PIPELINES, normalizeOverrides<Pipeline>(PIPELINE_OVERRIDES["data-engineer"]));
+}
+
+// ---------------------------------------------------------------------------
 // GET endpoints
 // ---------------------------------------------------------------------------
 
 export async function getPipelines(): Promise<Pipeline[]> {
   await delay();
-  return PIPELINES;
+  return pipelineRows();
 }
 
 export async function getQualityAlerts(): Promise<QualityAlert[]> {
@@ -211,9 +230,10 @@ export async function getQualityAlerts(): Promise<QualityAlert[]> {
 
 export async function getMetrics(): Promise<DataMetrics> {
   await delay(260);
+  const pipelines = pipelineRows();
   return {
-    running_pipelines: PIPELINES.filter((p) => p.status === "Running").length,
-    failed_today: PIPELINES.filter((p) => p.status === "Failed").length,
+    running_pipelines: pipelines.filter((p) => p.status === "Running").length,
+    failed_today: pipelines.filter((p) => p.status === "Failed").length,
     datasets_published: 42,
     quality_alerts: QUALITY_ALERTS.length,
   };
@@ -386,5 +406,5 @@ export async function refreshFeatureGroup(_id: string): Promise<{ job_id: string
 
 export async function getPipelines_forSelect() {
   await delay(150);
-  return PIPELINES.map((p) => ({ id: p.id, name: p.name }));
+  return pipelineRows().map((p) => ({ id: p.id, name: p.name }));
 }

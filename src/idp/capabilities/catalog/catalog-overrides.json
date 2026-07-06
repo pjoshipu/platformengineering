@@ -1,0 +1,21 @@
+{
+  "data-engineer": {
+    "added": [
+      {
+        "id": "usr_paymentservices",
+        "name": "paymentservices",
+        "type": "Data pipeline",
+        "owner": "data-platform",
+        "status": "Failed",
+        "updated_at": "2026-07-04T03:34:09.000Z",
+        "fields": {
+          "schedule": "0 * * * *",
+          "last_run": "just now",
+          "quality": "72%",
+          "consumers": "2 models",
+          "refresh": "Hourly"
+        }
+      }
+    ]
+  }
+}
