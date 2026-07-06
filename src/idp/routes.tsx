@@ -9,6 +9,8 @@ import Templates from "./capabilities/templates/Templates";
 import Docs from "./capabilities/docs/Docs";
 import PipelineBuilder from "./personas/data-engineer/PipelineBuilder";
 import CapabilityPillar from "./capabilities/pillars/CapabilityPillar";
+import Compare from "./capabilities/compare/Compare";
+import CapabilityGuide from "./capabilities/compare/CapabilityGuide";
 import { ComingSoon } from "./components/ComingSoon";
 import NotFound from "@/pages/NotFound";
 
@@ -51,6 +53,11 @@ export function buildPortalRoutes(): RouteObject[] {
     { path: "capabilities/knowledge-assets", element: <CapabilityPillar id="knowledge-assets" /> },
     { path: "capabilities/environment-assets", element: <CapabilityPillar id="environment-assets" /> },
     { path: "capabilities/portal-management", element: <CapabilityPillar id="portal-management" /> },
+
+    // Vendor feature comparison (linked from the homepage footer) + the
+    // plain-language capability guide it cross-links to.
+    { path: "compare", element: <Compare /> },
+    { path: "capabilities/guide", element: <CapabilityGuide /> },
 
     { path: "*", element: <NotFound /> },
   ];

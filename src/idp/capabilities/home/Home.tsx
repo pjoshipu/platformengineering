@@ -288,6 +288,16 @@ const Home = () => {
           })}
         </div>
       </section>
+
+      {/* Footer — vendor comparison link */}
+      <div className="mt-6 border-t border-border pt-3 text-center">
+        <button
+          onClick={() => navigate("/compare")}
+          className="text-xs text-muted-foreground hover:text-brand-purple hover:underline"
+        >
+          How this IDP compares to Harness, Port &amp; Cortex →
+        </button>
+      </div>
     </div>
   );
 };
