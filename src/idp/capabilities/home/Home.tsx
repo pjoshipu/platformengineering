@@ -295,7 +295,7 @@ const Home = () => {
           onClick={() => navigate("/compare")}
           className="text-xs text-muted-foreground hover:text-brand-purple hover:underline"
         >
-          How this IDP compares to Harness, Port &amp; Cortex →
+          Compare Harness, Port &amp; Cortex →
         </button>
       </div>
     </div>
