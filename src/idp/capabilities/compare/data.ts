@@ -515,16 +515,16 @@ export const LANDSCAPE: LandscapeVendor[] = [
   { name: "Configure8", product: "Configure8", scores: { portal: 5, ai: 2, platform: 3, governance: 4 } },
   { name: "Cortex", product: "Cortex", detailed: true, scores: { portal: 5, ai: 2, platform: 2, governance: 4 } },
   { name: "Harness", product: "SDP", detailed: true, scores: { portal: 3, ai: 2, platform: 5, governance: 5 } },
-  { name: "Krateo", product: "PlatformOps", scores: { portal: 3, ai: 1, platform: 4, governance: 3 } },
+  { name: "Krateo", product: "PlatformOps", scores: { portal: 3, ai: 2, platform: 4, governance: 3 } },
   { name: "Port", product: "IDP", detailed: true, scores: { portal: 4, ai: 5, platform: 3, governance: 4 } },
-  { name: "Mia-Platform", product: "Platform Console", scores: { portal: 4, ai: 2, platform: 4, governance: 4 } },
+  { name: "Mia-Platform", product: "Platform Console", scores: { portal: 4, ai: 2, platform: 2, governance: 4 } },
   { name: "OpenContext", product: "Open Context", scores: { portal: 3, ai: 2, platform: 2, governance: 3 } },
   { name: "OpsLevel", product: "Dev Portal", scores: { portal: 5, ai: 3, platform: 2, governance: 4 } },
   { name: "OpsVerse", product: "OpsVerse One", scores: { portal: 3, ai: 2, platform: 4, governance: 4 } },
   { name: "Red Hat", product: "Developer Hub", scores: { portal: 4, ai: 3, platform: 3, governance: 4 } },
   { name: "Roadie", product: "Roadie (Backstage)", scores: { portal: 4, ai: 3, platform: 2, governance: 4 } },
-  { name: "WSO2", product: "Choreo", scores: { portal: 3, ai: 3, platform: 5, governance: 4 } },
-  { name: "VMware", product: "Tanzu App Platform", scores: { portal: 4, ai: 2, platform: 5, governance: 4 } },
+  { name: "WSO2", product: "Choreo", scores: { portal: 3, ai: 3, platform: 4, governance: 4 } },
+  { name: "VMware", product: "Tanzu App Platform", scores: { portal: 4, ai: 2, platform: 4, governance: 4 } },
 ];
 
 /** Overall = equal-weighted mean of the four lens scores, one decimal. */

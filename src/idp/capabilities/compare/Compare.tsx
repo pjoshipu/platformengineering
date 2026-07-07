@@ -296,6 +296,16 @@ const Compare = () => {
           category.
         </p>
 
+        <p className="mt-3 rounded-lg border-l-2 border-brand-border bg-muted/40 p-2.5 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground/80">Why only these three? </span>
+          The detailed comparison profiles one leader per archetype rather than every vendor — a developer
+          portal / catalog leader (<strong>Cortex</strong>), an agentic-platform leader (<strong>Port</strong>),
+          and an execution / delivery-engine leader (<strong>Harness</strong>). <strong>WSO2 (Choreo)</strong> and{" "}
+          <strong>VMware Tanzu</strong> are execution engines in the same class as Harness; since their
+          capabilities overlap, we deep-dive only the highest-rated of that group — Harness — and keep WSO2 and
+          Tanzu in the full 15-vendor landscape below, where all vendors are scored side-by-side.
+        </p>
+
         <div className="mt-4 space-y-4">
           {GROUPS.map((group) => {
             const insight = CATEGORY_INSIGHTS.find((c) => c.category === group.title);
