@@ -1,12 +1,13 @@
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Check, Minus, BookOpen, Trophy, Compass, Layers, Plug } from "lucide-react";
+import { Check, Minus, BookOpen, Trophy, Compass, Layers, Plug, Globe } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/idp/components";
 import {
   VENDORS, GROUPS, CATEGORY_INSIGHTS, COMPETITORS, COMPETITOR_LABEL, categoryScore,
   overallScore, PORT_VS_HARNESS, PLATFORM_LENSES, lensScore,
+  LANDSCAPE, LANDSCAPE_CATEGORIES, landscapeAvg,
   type Level, type CompetitorKey,
 } from "./data";
 
@@ -180,6 +181,87 @@ const LensSection = () => (
     </div>
   </div>
 );
+
+/**
+ * The wider IDP landscape — all vendors from the market map scored 1–5 across
+ * the same four lenses, ranked by overall. Harness/Port/Cortex (detailed above)
+ * are marked with a star.
+ */
+const LandscapeSection = () => {
+  const sorted = [...LANDSCAPE].sort((a, b) => landscapeAvg(b) - landscapeAvg(a));
+  const colMax: Record<string, number> = {};
+  LANDSCAPE_CATEGORIES.forEach((c) => {
+    colMax[c.key] = Math.max(...LANDSCAPE.map((v) => v.scores[c.key]));
+  });
+  const ovMax = Math.max(...LANDSCAPE.map(landscapeAvg));
+
+  return (
+    <section className="mt-10">
+      <div className="flex items-center gap-2">
+        <Globe className="h-4 w-4 text-brand-purple" />
+        <h2 className="text-lg font-semibold">The wider IDP landscape</h2>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        The same four lenses, scored 1–5, across all {LANDSCAPE.length} platforms from the market map — ranked by
+        overall. The three detailed in the head-to-head above (Harness, Port, Cortex) are marked{" "}
+        <span className="text-brand-purple">★</span> and keep their scorecard numbers.
+      </p>
+
+      <Card className="mt-4 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-xs text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">Platform</th>
+                {LANDSCAPE_CATEGORIES.map((c) => (
+                  <th key={c.key} className="px-2 py-2 text-center font-medium">{c.short}</th>
+                ))}
+                <th className="px-2 py-2 text-center font-medium">Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((v) => {
+                const avg = landscapeAvg(v);
+                return (
+                  <tr key={v.name + v.product} className="border-b border-border/50 last:border-0">
+                    <td className="px-3 py-2">
+                      <span className={cn("text-[13px] font-medium", v.detailed && "text-brand-purple")}>
+                        {v.name}
+                        {v.detailed && " ★"}
+                      </span>
+                      <span className="ml-1 text-[11px] text-muted-foreground">{v.product}</span>
+                    </td>
+                    {LANDSCAPE_CATEGORIES.map((c) => {
+                      const s = v.scores[c.key];
+                      return (
+                        <td key={c.key} className="px-2 py-2 text-center">
+                          <span className={cn("tabular-nums", scoreClass(s), s === colMax[c.key] && "font-bold")}>
+                            {s}
+                          </span>
+                        </td>
+                      );
+                    })}
+                    <td className="px-2 py-2 text-center">
+                      <span className={cn("tabular-nums font-semibold", avg === ovMax ? "text-brand-purple" : "text-foreground/70")}>
+                        {avg.toFixed(1)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Scored 1–5 per lens (higher = stronger). Illustrative and grounded in each vendor's public documentation
+        and third-party reviews as of mid-2026; several are portals/catalogs, others full delivery platforms, so
+        weight the lenses that matter to you. Verify against current product docs before deciding.
+      </p>
+    </section>
+  );
+};
 
 const Compare = () => {
   const totalFeatures = GROUPS.reduce((n, g) => n + g.rows.length, 0);
@@ -371,6 +453,9 @@ const Compare = () => {
           );
         })()}
       </section>
+
+      {/* The wider IDP landscape — all vendors from the market map */}
+      <LandscapeSection />
 
       <p className="mt-6 text-xs text-muted-foreground">
         Comparing {totalFeatures} capabilities across Harness, Port, and Cortex, scored 1–5 across {GROUPS.length}{" "}

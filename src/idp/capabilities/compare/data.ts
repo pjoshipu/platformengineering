@@ -484,3 +484,52 @@ export const PORT_VS_HARNESS: PlatformVerdict = {
   cortexNote:
     "Cortex sits outside this head-to-head: it's the catalog-and-standards specialist (strongest system of record, scorecards, and Engineering Intelligence), not a delivery engine or an agentic platform. Pair it with a delivery engine rather than choosing it to run one.",
 };
+
+/**
+ * The wider IDP landscape — the full set of vendors from the market map, scored
+ * 1–5 across the same four lenses as the main scorecard (1 = least capable,
+ * 5 = best-in-class). Harness, Port, and Cortex keep the exact category scores
+ * from the detailed head-to-head above. Researched judgement (mid-2026) from
+ * each vendor's docs, product pages, and third-party reviews; illustrative.
+ */
+export type LandscapeCatKey = "portal" | "ai" | "platform" | "governance";
+
+export const LANDSCAPE_CATEGORIES: { key: LandscapeCatKey; short: string }[] = [
+  { key: "portal", short: "Dev Portal & Catalog" },
+  { key: "ai", short: "AI & Agentic" },
+  { key: "platform", short: "Platform Eng & Delivery" },
+  { key: "governance", short: "Governance & Extensibility" },
+];
+
+export interface LandscapeVendor {
+  name: string;
+  product: string;
+  /** one of the three detailed in the head-to-head above */
+  detailed?: boolean;
+  scores: Record<LandscapeCatKey, number>;
+}
+
+export const LANDSCAPE: LandscapeVendor[] = [
+  { name: "Atlassian", product: "Compass", scores: { portal: 4, ai: 3, platform: 2, governance: 4 } },
+  { name: "Calibo", product: "IDP", scores: { portal: 3, ai: 3, platform: 4, governance: 3 } },
+  { name: "Configure8", product: "Configure8", scores: { portal: 5, ai: 2, platform: 3, governance: 4 } },
+  { name: "Cortex", product: "Cortex", detailed: true, scores: { portal: 5, ai: 2, platform: 2, governance: 4 } },
+  { name: "Harness", product: "SDP", detailed: true, scores: { portal: 3, ai: 2, platform: 5, governance: 5 } },
+  { name: "Krateo", product: "PlatformOps", scores: { portal: 3, ai: 1, platform: 4, governance: 3 } },
+  { name: "Port", product: "IDP", detailed: true, scores: { portal: 4, ai: 5, platform: 3, governance: 4 } },
+  { name: "Mia-Platform", product: "Platform Console", scores: { portal: 4, ai: 2, platform: 4, governance: 4 } },
+  { name: "OpenContext", product: "Open Context", scores: { portal: 3, ai: 2, platform: 2, governance: 3 } },
+  { name: "OpsLevel", product: "Dev Portal", scores: { portal: 5, ai: 3, platform: 2, governance: 4 } },
+  { name: "OpsVerse", product: "OpsVerse One", scores: { portal: 3, ai: 2, platform: 4, governance: 4 } },
+  { name: "Red Hat", product: "Developer Hub", scores: { portal: 4, ai: 3, platform: 3, governance: 4 } },
+  { name: "Roadie", product: "Roadie (Backstage)", scores: { portal: 4, ai: 3, platform: 2, governance: 4 } },
+  { name: "WSO2", product: "Choreo", scores: { portal: 3, ai: 3, platform: 5, governance: 4 } },
+  { name: "VMware", product: "Tanzu App Platform", scores: { portal: 4, ai: 2, platform: 5, governance: 4 } },
+];
+
+/** Overall = equal-weighted mean of the four lens scores, one decimal. */
+export function landscapeAvg(v: LandscapeVendor): number {
+  const keys: LandscapeCatKey[] = ["portal", "ai", "platform", "governance"];
+  const total = keys.reduce((s, k) => s + v.scores[k], 0);
+  return Math.round((total / keys.length) * 10) / 10;
+}
