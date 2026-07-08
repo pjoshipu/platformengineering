@@ -1,15 +1,26 @@
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Check, Minus, BookOpen, Trophy, Compass, Layers, Plug, Globe } from "lucide-react";
+import { Check, Minus, BookOpen, Trophy, Compass, Layers, Plug, Globe, Presentation, Lightbulb } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/idp/components";
 import {
   VENDORS, GROUPS, CATEGORY_INSIGHTS, COMPETITORS, COMPETITOR_LABEL, categoryScore,
   overallScore, PORT_VS_HARNESS, PLATFORM_LENSES, lensScore,
-  LANDSCAPE, LANDSCAPE_CATEGORIES, landscapeAvg,
+  LANDSCAPE, LANDSCAPE_CATEGORIES, landscapeAvg, SCORING_METHODOLOGY,
   type Level, type CompetitorKey,
 } from "./data";
+
+/** A high-contrast "So what" takeaway used at the end of each section. */
+const SoWhat = ({ children }: { children: React.ReactNode }) => (
+  <p className="mt-3 flex gap-2 rounded-lg border-l-2 border-brand-purple bg-brand-tint/40 p-3 text-sm">
+    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+    <span>
+      <span className="font-semibold text-brand-purple">So what: </span>
+      {children}
+    </span>
+  </p>
+);
 
 /**
  * A head-to-head comparison of three IDP / platform-engineering products —
@@ -179,6 +190,12 @@ const LensSection = () => (
         );
       })}
     </div>
+
+    <SoWhat>
+      For Data &amp; AI/ML, none of these is the engine — they're a thin catalog / governance layer over your real
+      stack, so <strong>integration quality</strong> (Kubeflow, Airflow, MLflow, dbt) matters more than native
+      features. Only <strong>Agentic</strong> has a clear native leader (Port).
+    </SoWhat>
   </div>
 );
 
@@ -202,17 +219,17 @@ const LandscapeSection = () => {
         <h2 className="text-lg font-semibold">The wider IDP landscape</h2>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        The same four lenses, scored 1–5, across all {LANDSCAPE.length} platforms from the market map — ranked by
-        overall. The three detailed in the head-to-head above (Harness, Port, Cortex) are marked{" "}
-        <span className="text-brand-purple">★</span> and keep their scorecard numbers.
+        The same four lenses, scored 1–5, across all {LANDSCAPE.length} platforms — the 15 from the market map plus
+        Backstage (the open-source "build" baseline) — ranked by overall. The three detailed in the head-to-head
+        above (Harness, Port, Cortex) are marked <span className="text-brand-purple">★</span>.
       </p>
 
       <Card className="mt-4 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-sm">
+          <table className="w-full min-w-[820px] text-sm">
             <thead>
               <tr className="border-b border-border text-xs text-muted-foreground">
-                <th className="px-3 py-2 text-left font-medium">Platform</th>
+                <th className="w-2/5 px-3 py-2 text-left font-medium">Platform &amp; scoring rationale</th>
                 {LANDSCAPE_CATEGORIES.map((c) => (
                   <th key={c.key} className="px-2 py-2 text-center font-medium">{c.short}</th>
                 ))}
@@ -224,24 +241,27 @@ const LandscapeSection = () => {
                 const avg = landscapeAvg(v);
                 return (
                   <tr key={v.name + v.product} className="border-b border-border/50 last:border-0">
-                    <td className="px-3 py-2">
-                      <span className={cn("text-[13px] font-medium", v.detailed && "text-brand-purple")}>
-                        {v.name}
-                        {v.detailed && " ★"}
-                      </span>
-                      <span className="ml-1 text-[11px] text-muted-foreground">{v.product}</span>
+                    <td className="px-3 py-2 align-top">
+                      <div>
+                        <span className={cn("text-[13px] font-medium", v.detailed && "text-brand-purple")}>
+                          {v.name}
+                          {v.detailed && " ★"}
+                        </span>
+                        <span className="ml-1 text-[11px] text-muted-foreground">{v.product}</span>
+                      </div>
+                      <div className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{v.rationale}</div>
                     </td>
                     {LANDSCAPE_CATEGORIES.map((c) => {
                       const s = v.scores[c.key];
                       return (
-                        <td key={c.key} className="px-2 py-2 text-center">
+                        <td key={c.key} className="px-2 py-2 text-center align-top">
                           <span className={cn("tabular-nums", scoreClass(s), s === colMax[c.key] && "font-bold")}>
                             {s}
                           </span>
                         </td>
                       );
                     })}
-                    <td className="px-2 py-2 text-center">
+                    <td className="px-2 py-2 text-center align-top">
                       <span className={cn("tabular-nums font-semibold", avg === ovMax ? "text-brand-purple" : "text-foreground/70")}>
                         {avg.toFixed(1)}
                       </span>
@@ -254,11 +274,25 @@ const LandscapeSection = () => {
         </div>
       </Card>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        Scored 1–5 per lens (higher = stronger). Illustrative and grounded in each vendor's public documentation
-        and third-party reviews as of mid-2026; several are portals/catalogs, others full delivery platforms, so
-        weight the lenses that matter to you. Verify against current product docs before deciding.
-      </p>
+      <SoWhat>
+        The field clusters into the three archetypes — beyond the leaders, most tools are strong in{" "}
+        <strong>one</strong> lens and thin elsewhere. Shortlist by the archetype you need, not by the overall
+        average, and treat <strong>Backstage</strong> as the open-source "build" baseline the commercial vendors
+        sit on top of.
+      </SoWhat>
+
+      {/* Scoring methodology */}
+      <div className="mt-4 rounded-lg border border-border p-4">
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">How we scored</div>
+        <ul className="mt-2 space-y-1.5">
+          {SCORING_METHODOLOGY.map((m) => (
+            <li key={m} className="flex gap-2 text-xs text-muted-foreground">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground/50" />
+              {m}
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 };
@@ -274,13 +308,22 @@ const Compare = () => {
         backTo="/"
         backLabel="Back to home"
         actions={
-          <Link
-            to="/capabilities/guide"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:border-brand-border hover:text-brand-purple"
-          >
-            <BookOpen className="h-4 w-4" />
-            What do these capabilities mean?
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/archetypes"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:border-brand-border hover:text-brand-purple"
+            >
+              <Presentation className="h-4 w-4" />
+              The 3 archetypes
+            </Link>
+            <Link
+              to="/capabilities/guide"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:border-brand-border hover:text-brand-purple"
+            >
+              <BookOpen className="h-4 w-4" />
+              What do these capabilities mean?
+            </Link>
+          </div>
         }
       />
 
@@ -303,8 +346,14 @@ const Compare = () => {
           and an execution / delivery-engine leader (<strong>Harness</strong>). <strong>WSO2 (Choreo)</strong> and{" "}
           <strong>VMware Tanzu</strong> are execution engines in the same class as Harness; since their
           capabilities overlap, we deep-dive only the highest-rated of that group — Harness — and keep WSO2 and
-          Tanzu in the full 15-vendor landscape below, where all vendors are scored side-by-side.
+          Tanzu in the full 16-vendor landscape below, where all vendors are scored side-by-side.
         </p>
+
+        <SoWhat>
+          There is no single "best" IDP — each of the three leads a <strong>different</strong> category. Choose by
+          the gap you're closing: <strong>Cortex</strong> for catalog &amp; standards, <strong>Port</strong> for
+          AI-agentic developer experience, <strong>Harness</strong> for an execution engine.
+        </SoWhat>
 
         <div className="mt-4 space-y-4">
           {GROUPS.map((group) => {
@@ -422,6 +471,12 @@ const Compare = () => {
           <span className="font-medium text-foreground/80">Where Cortex fits: </span>
           {PORT_VS_HARNESS.cortexNote}
         </p>
+
+        <SoWhat>
+          These two aren't substitutes — <strong>Harness executes</strong>, <strong>Port orchestrates and adds
+          agents on top</strong>. Most mature orgs run a portal/agentic layer over an execution engine, so the
+          real decision is which layer you're missing, not which vendor "wins".
+        </SoWhat>
 
         {/* Reference: equal-weighted overall standing across all three */}
         {(() => {

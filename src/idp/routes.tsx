@@ -11,6 +11,8 @@ import PipelineBuilder from "./personas/data-engineer/PipelineBuilder";
 import CapabilityPillar from "./capabilities/pillars/CapabilityPillar";
 import Compare from "./capabilities/compare/Compare";
 import CapabilityGuide from "./capabilities/compare/CapabilityGuide";
+import Archetypes from "./capabilities/compare/Archetypes";
+import VendorVignette from "./capabilities/compare/VendorVignette";
 import { ComingSoon } from "./components/ComingSoon";
 import NotFound from "@/pages/NotFound";
 
@@ -58,6 +60,8 @@ export function buildPortalRoutes(): RouteObject[] {
     // plain-language capability guide it cross-links to.
     { path: "compare", element: <Compare /> },
     { path: "capabilities/guide", element: <CapabilityGuide /> },
+    { path: "archetypes", element: <Archetypes /> },
+    { path: "vendor/:vendorId", element: <VendorVignette /> },
 
     { path: "*", element: <NotFound /> },
   ];

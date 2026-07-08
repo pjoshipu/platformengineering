@@ -507,29 +507,240 @@ export interface LandscapeVendor {
   /** one of the three detailed in the head-to-head above */
   detailed?: boolean;
   scores: Record<LandscapeCatKey, number>;
+  /** one-line justification for the scores */
+  rationale: string;
+  /** explicit overall (client-set) that overrides the computed average */
+  overall?: number;
 }
 
 export const LANDSCAPE: LandscapeVendor[] = [
-  { name: "Atlassian", product: "Compass", scores: { portal: 4, ai: 3, platform: 2, governance: 4 } },
-  { name: "Calibo", product: "IDP", scores: { portal: 3, ai: 3, platform: 4, governance: 3 } },
-  { name: "Configure8", product: "Configure8", scores: { portal: 5, ai: 2, platform: 3, governance: 4 } },
-  { name: "Cortex", product: "Cortex", detailed: true, scores: { portal: 5, ai: 2, platform: 2, governance: 4 } },
-  { name: "Harness", product: "SDP", detailed: true, scores: { portal: 3, ai: 2, platform: 5, governance: 5 } },
-  { name: "Krateo", product: "PlatformOps", scores: { portal: 3, ai: 2, platform: 4, governance: 3 } },
-  { name: "Port", product: "IDP", detailed: true, scores: { portal: 4, ai: 5, platform: 3, governance: 4 } },
-  { name: "Mia-Platform", product: "Platform Console", scores: { portal: 4, ai: 2, platform: 2, governance: 4 } },
-  { name: "OpenContext", product: "Open Context", scores: { portal: 3, ai: 2, platform: 2, governance: 3 } },
-  { name: "OpsLevel", product: "Dev Portal", scores: { portal: 5, ai: 3, platform: 2, governance: 4 } },
-  { name: "OpsVerse", product: "OpsVerse One", scores: { portal: 3, ai: 2, platform: 4, governance: 4 } },
-  { name: "Red Hat", product: "Developer Hub", scores: { portal: 4, ai: 3, platform: 3, governance: 4 } },
-  { name: "Roadie", product: "Roadie (Backstage)", scores: { portal: 4, ai: 3, platform: 2, governance: 4 } },
-  { name: "WSO2", product: "Choreo", scores: { portal: 3, ai: 3, platform: 4, governance: 4 } },
-  { name: "VMware", product: "Tanzu App Platform", scores: { portal: 4, ai: 2, platform: 4, governance: 4 } },
+  { name: "Atlassian", product: "Compass", scores: { portal: 4, ai: 3, platform: 2, governance: 4 },
+    rationale: "Solid catalog + maturity scorecards and Rovo AI, but templates were deprecated (Dec 2025) and it's weak outside the Atlassian suite." },
+  { name: "Backstage", product: "OSS framework", scores: { portal: 4, ai: 2, platform: 2, governance: 3 },
+    rationale: "The open-source CNCF framework the market is built on — unmatched catalog, plugin and TechDocs flexibility, but you run it yourself; RBAC, SSO, scorecards and support are bolt-ons." },
+  { name: "Calibo", product: "IDP", scores: { portal: 3, ai: 3, platform: 4, governance: 3 },
+    rationale: "Combined DevSecOps + data-orchestration platform with self-service pipelines and AIOps; broad delivery/data reach, lighter as a pure portal." },
+  { name: "Configure8", product: "Configure8", scores: { portal: 5, ai: 2, platform: 3, governance: 4 },
+    rationale: "Universal catalog with the largest pre-built scorecard library and context-aware self-serve actions; portal-first, not a delivery engine." },
+  { name: "Cortex", product: "Cortex", detailed: true, scores: { portal: 5, ai: 2, platform: 3, governance: 4 }, overall: 3.7,
+    rationale: "The catalog/standards benchmark — opinionated catalog, signature maturity scorecards, and native Engineering Intelligence; not a delivery engine." },
+  { name: "Harness", product: "SDP", detailed: true, scores: { portal: 3, ai: 2, platform: 5, governance: 5 },
+    rationale: "AI-native, all-in-one delivery engine (CI/CD, flags, cost, security, chaos) with a managed Backstage IDP; strongest delivery + governance." },
+  { name: "Krateo", product: "PlatformOps", scores: { portal: 3, ai: 2, platform: 4, governance: 3 },
+    rationale: "Open-source, Kubernetes-native control plane — golden paths, resource provisioning and FinOps; strong platform, light on portal polish and AI." },
+  { name: "Port", product: "IDP", detailed: true, scores: { portal: 4, ai: 5, platform: 3, governance: 4 },
+    rationale: "The agentic leader after its $100M pivot — flexible blueprint catalog plus action-taking AI agents, a Context Lake and human-in-the-loop guardrails." },
+  { name: "Mia-Platform", product: "Platform Console", scores: { portal: 4, ai: 2, platform: 2, governance: 4 },
+    rationale: "Kubernetes app-platform builder with a plug-and-play marketplace and microservice lifecycle; strong builder, modest AI and delivery breadth." },
+  { name: "OpenContext", product: "Open Context", scores: { portal: 3, ai: 2, platform: 2, governance: 3 },
+    rationale: "Graph-based DevSecOps catalog mapping teams-to-code relationships; useful visibility, narrower overall footprint." },
+  { name: "OpsLevel", product: "Dev Portal", scores: { portal: 5, ai: 3, platform: 2, governance: 4 },
+    rationale: "Service-ownership and scorecard/rubric heritage with AI catalog enrichment and one-click actions; portal-strong, not a delivery engine." },
+  { name: "OpsVerse", product: "OpsVerse One", scores: { portal: 3, ai: 2, platform: 4, governance: 4 },
+    rationale: "Managed, Backstage-based DevOps toolchain (Argo/Grafana/Prometheus) delivered as private SaaS; delivery-and-ops strong, lighter portal/AI." },
+  { name: "Red Hat", product: "Developer Hub", scores: { portal: 4, ai: 3, platform: 3, governance: 4 },
+    rationale: "Enterprise-supported Backstage distro (catalog/scorecards/templates/plugins) with Lightspeed AI; strongest in OpenShift shops." },
+  { name: "Roadie", product: "Roadie (Backstage)", scores: { portal: 4, ai: 3, platform: 2, governance: 4 },
+    rationale: "Managed Backstage SaaS with RBAC/scorecards/self-service and the full plugin ecosystem, minus the operational burden." },
+  { name: "WSO2", product: "Choreo", scores: { portal: 3, ai: 3, platform: 4, governance: 4 },
+    rationale: "AI-native IDP + delivery platform with native CI/CD, API management and governance-by-design; broad delivery, newer portal and AI." },
+  { name: "VMware", product: "Tanzu App Platform", scores: { portal: 4, ai: 2, platform: 4, governance: 4 },
+    rationale: "Full app platform (supply-chain, build, deploy on K8s) with a Backstage-based GUI; strong delivery, roadmap uncertain post-Broadcom." },
 ];
 
-/** Overall = equal-weighted mean of the four lens scores, one decimal. */
+/** Overall = client-set override if present, else equal-weighted mean (1 dp). */
 export function landscapeAvg(v: LandscapeVendor): number {
+  if (v.overall !== undefined) return v.overall;
   const keys: LandscapeCatKey[] = ["portal", "ai", "platform", "governance"];
   const total = keys.reduce((s, k) => s + v.scores[k], 0);
   return Math.round((total / keys.length) * 10) / 10;
 }
+
+/** How the 1–5 scores were derived — shown as a methodology note. */
+export const SCORING_METHODOLOGY: string[] = [
+  "Scores are 1–5 (1 = least capable, 5 = best-in-class), assigned per lens against a common rubric of sub-capabilities — so the same yardstick applies to every vendor.",
+  "For the three detailed vendors, each category score is the average of its sub-capability scores; landscape scores are category-level judgements.",
+  "Grounded in each vendor's public documentation, product pages, and third-party reviews (G2, Gartner Peer Insights, analyst comparisons) as of mid-2026.",
+  "Portals (catalog/scorecards) and execution platforms are scored on the same rubric, so a pure portal scores low on delivery by design — weight the lenses that matter to your strategy.",
+  "Illustrative for strategy shortlisting, not procurement scoring — validate against current product docs and a hands-on trial before deciding.",
+];
+
+/** The three archetypes profiled in the detailed comparison. */
+export interface Archetype {
+  key: CompetitorKey;
+  category: string;
+  title: string;
+  tagline: string;
+  whyLeader: string;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export const ARCHETYPES: Archetype[] = [
+  {
+    key: "cortex",
+    category: "Developer Portal & Catalog",
+    title: "Cortex",
+    tagline: "The engineering system of record",
+    whyLeader:
+      "Purpose-built for engineering excellence — an opinionated catalog that works on day one, the signature maturity scorecards, and native Engineering Intelligence make it the benchmark for the portal / catalog archetype.",
+    strengths: [
+      "Best-in-class scorecards & Bronze/Silver/Gold maturity models",
+      "Rich catalog with 60+ integrations, opinionated and usable day one",
+      "Native Engineering Intelligence (DORA, velocity, incidents)",
+      "Multi-step self-service workflow engine",
+    ],
+    weaknesses: [
+      "Not a delivery engine — no native CI/CD or feature flags",
+      "Somewhat rigid data model; shoehorning non-standard entities",
+      "Enterprise pricing; multi-month rollouts at scale",
+      "Assistive AI (Magellan/MCP), not autonomous agents",
+    ],
+  },
+  {
+    key: "port",
+    category: "AI & Agentic",
+    title: "Port",
+    tagline: "The agentic engineering platform",
+    whyLeader:
+      "After a late-2025 $100M pivot to an 'Agentic Engineering Platform', Port leads on action-taking AI agents across the SDLC — a Context Lake, agent management, and human-in-the-loop guardrails on top of a flexible blueprint catalog.",
+    strengths: [
+      "Leading agentic AI: build and run action-taking agents via MCP",
+      "Highly flexible, no-code blueprint data model",
+      "Fast time-to-value; transparent per-seat pricing with a free tier",
+      "Strong self-service actions and dashboards",
+    ],
+    weaknesses: [
+      "Not an execution engine — proxies to your existing CI/CD",
+      "Single-step actions; multi-step logic lives in your backend",
+      "SaaS-only (data-residency / air-gapped limits)",
+      "Needs platform + AI expertise; cost scales with service count",
+    ],
+  },
+  {
+    key: "harness",
+    category: "Platform Engineering & Delivery",
+    title: "Harness",
+    tagline: "AI-native software delivery engine",
+    whyLeader:
+      "The all-in-one execution engine — native CI/CD, feature flags, cloud cost, security testing and chaos in one platform, with a managed Backstage IDP and enterprise governance — makes it the leader of the delivery-engine archetype (ahead of peers WSO2 and VMware Tanzu).",
+    strengths: [
+      "Native CI/CD plus the full delivery suite in one platform",
+      "Cloud Cost (CCM) and Security Testing (STO) built in",
+      "AIDA assistant + agentic security workflows",
+      "Enterprise entity-level RBAC, OPA policy, SEI analytics",
+    ],
+    weaknesses: [
+      "Backstage-based IDP is the youngest part of the platform",
+      "UI can feel cluttered; real learning curve",
+      "Modular pricing adds up; 20-license IDP minimum",
+      "Less flexible catalog model than Port or Cortex",
+    ],
+  },
+];
+
+/** One-page vendor vignettes for the three shortlisted candidates. */
+export interface Vignette {
+  key: CompetitorKey;
+  name: string;
+  category: string;
+  tagline: string;
+  overview: string;
+  model: string;
+  notable: string;
+  coreFeatures: string[];
+  strengths: string[];
+  weaknesses: string[];
+  bestFor: string;
+  pricing: string;
+}
+
+export const VIGNETTES: Record<CompetitorKey, Vignette> = {
+  cortex: {
+    key: "cortex",
+    name: "Cortex",
+    category: "Developer Portal & Catalog leader",
+    tagline: "The engineering system of record",
+    overview:
+      "Cortex is an enterprise internal developer portal focused on engineering excellence — unifying a service catalog, scorecards, and Engineering Intelligence into one system. In 2026 it positions itself as 'mission control for the AI software factory'.",
+    model: "Commercial SaaS",
+    notable: "Used by Canva, Bumble, Etsy, H&R Block, Milwaukee Tools",
+    coreFeatures: [
+      "Service & resource catalog with 60+ integrations",
+      "Scorecards with Bronze/Silver/Gold maturity tiers",
+      "Self-service scaffolder + multi-step workflow engine",
+      "Engineering Intelligence (DORA, velocity, incident metrics)",
+      "Cortex AI + Magellan data engine + MCP for external agents",
+    ],
+    strengths: [
+      "Best-in-class scorecards & standards enforcement",
+      "Opinionated catalog that delivers value on day one",
+      "Native engineering analytics — no separate SEI tool needed",
+    ],
+    weaknesses: [
+      "Not a delivery engine (no CI/CD, flags)",
+      "Rigid data model; multi-month enterprise rollouts",
+      "Assistive AI rather than autonomous agents",
+    ],
+    bestFor: "Orgs prioritizing standards, ownership, and engineering-excellence metrics across a large service estate.",
+    pricing: "Enterprise, quote-based (~$60–70 / user / month reported at scale)",
+  },
+  port: {
+    key: "port",
+    name: "Port",
+    category: "AI & Agentic leader",
+    tagline: "The agentic engineering platform",
+    overview:
+      "Port is a flexible, no-code internal developer portal that repositioned in late 2025 (after a $100M Series C at an $800M valuation) as an 'Agentic Engineering Platform' — giving AI agents real, governed responsibility across the SDLC.",
+    model: "Commercial SaaS (free tier available)",
+    notable: "$100M Series C (Dec 2025), General Atlantic / Accel / Bessemer",
+    coreFeatures: [
+      "Blueprint-based, fully customizable catalog",
+      "Self-service actions + workflow automation",
+      "Scorecards and customizable dashboards",
+      "AI agents (build + run) via MCP, plus a Context Lake",
+      "Out-of-the-box engineering insights (DORA, delivery)",
+    ],
+    strengths: [
+      "Leading agentic AI with human-in-the-loop guardrails",
+      "Radically flexible data model; fast time-to-value",
+      "Transparent per-seat pricing with a genuine free tier",
+    ],
+    weaknesses: [
+      "Not an execution engine — plugs into your CI/CD",
+      "Single-step actions push orchestration to your backend",
+      "SaaS-only; cost scales linearly with service count",
+    ],
+    bestFor: "Teams with existing CI/CD wanting a flexible orchestration + AI-agent layer over a best-of-breed stack.",
+    pricing: "Free tier; Standard ~$40 / seat / month; Enterprise custom",
+  },
+  harness: {
+    key: "harness",
+    name: "Harness",
+    category: "Platform Engineering & Delivery leader",
+    tagline: "AI-native software delivery platform",
+    overview:
+      "Harness is a unified, AI-native software delivery platform — CI/CD, feature flags, cloud cost, security testing and chaos engineering — with a managed, Backstage-based internal developer portal layered on top.",
+    model: "Commercial SaaS + self-managed; some open source",
+    notable: "Acquired Split.io (feature flags); 4.6/5 on G2 across the platform",
+    coreFeatures: [
+      "Continuous Integration & Delivery (GitOps, canary/blue-green)",
+      "Feature Management & Experimentation (ex-Split)",
+      "Cloud Cost Management (CCM) + Security Testing (STO)",
+      "IaC management, chaos engineering, database DevOps",
+      "Backstage-based IDP + AIDA AI assistant + MCP server",
+    ],
+    strengths: [
+      "Broadest delivery suite in one governed platform",
+      "Enterprise RBAC, OPA policy-as-code, SEI analytics",
+      "AI embedded across the delivery lifecycle",
+    ],
+    weaknesses: [
+      "Portal is the youngest, least-mature module",
+      "Cluttered UI and a real learning curve",
+      "Modular pricing adds up; 20-license IDP minimum",
+    ],
+    bestFor: "Enterprises consolidating the delivery toolchain under one governed, AI-assisted platform.",
+    pricing: "Modular, mostly quote-based; free tier; 20-license IDP minimum",
+  },
+};
