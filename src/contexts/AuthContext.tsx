@@ -1,80 +1,170 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from 'react';
+import { EMPLOYEES, getEmployee, type EmployeeProfile } from '@/idp/identity/directory';
+import { resolvePersona, type PersonaMatch } from '@/idp/identity/resolvePersona';
 
 /**
- * Persona is a *preference*, not an auth session. The IDP homepage is the front
- * door (no login): a first-time visitor defaults to "ai-engineer"; the choice is
- * remembered in localStorage["idp_persona"] and can be changed anytime from the
- * homepage tiles, the sidebar switcher, or the avatar menu.
+ * Identity-driven auth with a real session + persisted roster.
  *
- * The context keeps the historical `{ persona, name }` user shape so existing
- * screens that read `useAuth().user.persona` keep working unchanged.
+ * You are signed in as a *profile* (one you create at onboarding, or a demo
+ * person from the directory). The persona is DERIVED from that profile — you
+ * never pick it directly. Created profiles are saved to a roster in
+ * localStorage, so you can log out and log back in as any previous engineer,
+ * and profile edits persist. `user` keeps the historical `{ persona, name }`
+ * shape so existing screens keep working; `persona` is computed, never stored.
  */
 export interface User {
-  /** IDP persona id, e.g. "data-scientist" (see src/idp/personas/registry.tsx) */
   persona: string;
-  /** display label, e.g. "Data Scientist" */
   name: string;
 }
 
-/** id → display label. Mirrors the registry labels; kept inline to avoid a
- *  circular import (screens import useAuth, the registry imports screens). */
-const PERSONA_NAMES: Record<string, string> = {
-  'ai-engineer': 'AI Engineer',
-  'agentic-engineer': 'Agentic Engineer',
-  'data-scientist': 'Data Scientist',
-  'app-engineer': 'Platform Engineer',
-  'mlops': 'MLOps Engineer',
-  'security': 'Security Engineer',
-  'data-engineer': 'Data Engineer',
+const PROFILES_KEY = 'idp_profiles';   // roster of user-created engineer profiles
+const ACTIVE_KEY = 'idp_active';       // id of the signed-in profile ("" = logged out)
+const EDITS_KEY = 'idp_profile_edits'; // patches applied to demo directory people
+
+type EditMap = Record<string, Partial<EmployeeProfile>>;
+
+export const BLANK_PROFILE: EmployeeProfile = {
+  id: '', name: 'You', email: 'you@acme.io', title: '', department: '', team: '',
+  location: 'Remote', seniority: 'Senior', skills: [], systems: [], bio: '',
 };
 
-const DEFAULT_PERSONA = 'ai-engineer';
-export const PERSONA_KEY = 'idp_persona';
+const isBrowser = typeof window !== 'undefined';
+const uid = () => `eng-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
-const userFor = (persona: string): User => ({
-  persona,
-  name: PERSONA_NAMES[persona] ?? persona,
-});
+const readProfiles = (): EmployeeProfile[] => {
+  if (!isBrowser) return [];
+  try {
+    const arr = JSON.parse(localStorage.getItem(PROFILES_KEY) ?? '[]');
+    return Array.isArray(arr) ? (arr as EmployeeProfile[]) : [];
+  } catch { return []; }
+};
 
-const readPersona = (): string => {
-  if (typeof window === 'undefined') return DEFAULT_PERSONA;
-  const p = localStorage.getItem(PERSONA_KEY);
-  return p && PERSONA_NAMES[p] ? p : DEFAULT_PERSONA;
+const readActive = (): string | null => {
+  if (!isBrowser) return null;
+  const v = localStorage.getItem(ACTIVE_KEY);
+  return v && v.length ? v : null;
+};
+
+const readEdits = (): EditMap => {
+  if (!isBrowser) return {};
+  try { return JSON.parse(localStorage.getItem(EDITS_KEY) ?? '{}') as EditMap; } catch { return {}; }
 };
 
 interface AuthContextType {
-  /** Always present now — persona is a preference, never a null session. */
+  /** the signed-in user, or null when logged out */
   user: User | null;
-  /** Change the active persona and persist it to localStorage["idp_persona"]. */
-  setPersona: (persona: string) => void;
-  /** Legacy: set the active persona from a full user object (used by Login). */
-  login: (user: User) => void;
-  /** Legacy: reset to the default persona. */
+  /** the full, effective profile of the signed-in person */
+  profile: EmployeeProfile;
+  /** the persona derivation result: id, label, confidence, reason, signals */
+  personaMatch: PersonaMatch;
+  /** whether someone is signed in */
+  loggedIn: boolean;
+  /** demo directory people (fixed) */
+  directory: EmployeeProfile[];
+  /** the user's own created & saved profiles (the roster) */
+  savedProfiles: EmployeeProfile[];
+  /** create + save a new profile from onboarding and sign in as it; returns its id */
+  createProfile: (profile: Partial<EmployeeProfile>) => string;
+  /** add a saved profile WITHOUT signing in (admin sets up profiles behind the scenes); returns its id */
+  addProfile: (profile: Partial<EmployeeProfile>) => string;
+  /** patch any saved profile by id (admin editing) */
+  updateProfileById: (id: string, patch: Partial<EmployeeProfile>) => void;
+  /** remove a saved profile from the roster */
+  deleteProfile: (id: string) => void;
+  /** sign in as a saved or demo profile by id */
+  signInAs: (id: string) => void;
+  /** end the session (returns to the sign-in gate) */
   logout: () => void;
+  /** patch the active profile; persists for created profiles, re-derives persona */
+  updateProfile: (patch: Partial<EmployeeProfile>) => void;
+  /** revert edits made to a demo directory person */
+  resetProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => userFor(readPersona()));
+  const [profiles, setProfiles] = useState<EmployeeProfile[]>(() => readProfiles());
+  const [activeId, setActiveId] = useState<string | null>(() => readActive());
+  const [edits, setEdits] = useState<EditMap>(() => readEdits());
 
-  const setPersona = useCallback((persona: string) => {
-    const next = userFor(persona);
-    setUser(next);
-    localStorage.setItem(PERSONA_KEY, persona);
+  useEffect(() => { try { localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles)); } catch { /* ignore */ } }, [profiles]);
+  useEffect(() => { try { localStorage.setItem(ACTIVE_KEY, activeId ?? ''); } catch { /* ignore */ } }, [activeId]);
+  useEffect(() => { try { localStorage.setItem(EDITS_KEY, JSON.stringify(edits)); } catch { /* ignore */ } }, [edits]);
+
+  const loggedIn = activeId != null;
+  const activeCreated = useMemo(
+    () => profiles.find((p) => p.id === activeId),
+    [profiles, activeId]
+  );
+
+  const profile = useMemo<EmployeeProfile>(() => {
+    if (!activeId) return BLANK_PROFILE;
+    if (activeCreated) return activeCreated;
+    return { ...getEmployee(activeId), ...(edits[activeId] ?? {}) };
+  }, [activeId, activeCreated, edits]);
+
+  const personaMatch = useMemo(() => resolvePersona(profile), [profile]);
+
+  const createProfile = useCallback((patch: Partial<EmployeeProfile>) => {
+    const id = uid();
+    const p: EmployeeProfile = { ...BLANK_PROFILE, ...patch, id };
+    setProfiles((prev) => [...prev, p]);
+    setActiveId(id);
+    return id;
   }, []);
 
-  const login = useCallback((u: User) => {
-    setUser(u);
-    localStorage.setItem(PERSONA_KEY, u.persona);
+  const addProfile = useCallback((patch: Partial<EmployeeProfile>) => {
+    const id = uid();
+    const p: EmployeeProfile = { ...BLANK_PROFILE, ...patch, id };
+    setProfiles((prev) => [...prev, p]);
+    return id;
   }, []);
 
-  const logout = useCallback(() => {
-    setPersona(DEFAULT_PERSONA);
-  }, [setPersona]);
+  const updateProfileById = useCallback((id: string, patch: Partial<EmployeeProfile>) => {
+    setProfiles((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }, []);
+
+  const deleteProfile = useCallback((id: string) => {
+    setProfiles((prev) => prev.filter((p) => p.id !== id));
+    setActiveId((cur) => (cur === id ? null : cur));
+  }, []);
+
+  const signInAs = useCallback((id: string) => {
+    if (id) setActiveId(id);
+  }, []);
+
+  const logout = useCallback(() => setActiveId(null), []);
+
+  const updateProfile = useCallback((patch: Partial<EmployeeProfile>) => {
+    if (!activeId) return;
+    if (profiles.some((p) => p.id === activeId)) {
+      setProfiles((prev) => prev.map((p) => (p.id === activeId ? { ...p, ...patch } : p)));
+    } else {
+      setEdits((prev) => ({ ...prev, [activeId]: { ...prev[activeId], ...patch } }));
+    }
+  }, [activeId, profiles]);
+
+  const resetProfile = useCallback(() => {
+    if (!activeId) return;
+    setEdits((prev) => {
+      const next = { ...prev };
+      delete next[activeId];
+      return next;
+    });
+  }, [activeId]);
+
+  const user: User | null = loggedIn ? { persona: personaMatch.personaId, name: profile.name } : null;
 
   return (
-    <AuthContext.Provider value={{ user, setPersona, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user, profile, personaMatch, loggedIn,
+        directory: EMPLOYEES, savedProfiles: profiles,
+        createProfile, addProfile, updateProfileById, deleteProfile,
+        signInAs, logout, updateProfile, resetProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

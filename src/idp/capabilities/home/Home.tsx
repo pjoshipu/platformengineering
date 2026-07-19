@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import {
-  Bot, Infinity as InfinityIcon, ScatterChart, Server, RefreshCw, ShieldCheck, Database,
+  Bot, ScatterChart, Server, RefreshCw, ShieldCheck, Database,
   Rocket, Type, Eye, Play, GitBranch, Plug, Activity, Shield, FlaskConical, CheckCircle2,
   HeartPulse, Settings as SettingsIcon, Cpu, ScanSearch, AlertTriangle, Download, UserX,
-  Upload, ArrowRight, Clock, Boxes, BookText, Zap, type LucideIcon,
+  Upload, ArrowRight, Clock, Boxes, BookText, Zap, Sparkles, Pencil, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMockQuery } from "../../api/client";
@@ -11,36 +11,18 @@ import {
   getActivity, getQuickActions, getFeed, getJourneys,
   type DotColor, type FeedTag,
 } from "../../api/homepage";
-import { usePersona } from "../../state/persona";
+import { useAuth } from "@/contexts/AuthContext";
+import { employeeInitials } from "../../identity/directory";
+import { dashboardForPersona } from "../../identity/resolvePersona";
 import { useJourney } from "../../state/journey";
 
 /**
- * The IDP homepage — the front door. Three always-visible sections: persona
- * tiles, an activity feed + quick actions, and journey cards. Selecting a tile
- * personalizes sections 2 and 3 in place (no reload); every element links to a
- * real portal route.
+ * The IDP homepage — the identity-driven front door. There is no persona picker:
+ * you are signed in as a person, and the platform shows the workspace it DERIVED
+ * from that person's profile, with the reason. Below, an identity switcher lets a
+ * demo move across people (each re-derives its own workspace). Everything else
+ * (activity, feed, journeys) is personalized to the derived persona.
  */
-
-interface Tile {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  subtitle: string;
-  dashboard: string;
-  agents: number;
-}
-
-// Order + labels + primary route per the spec (tile "Platform Engineer" =
-// app-engineer; "Agentic Engineer" primary screen is the marketplace).
-const TILES: Tile[] = [
-  { id: "ai-engineer", label: "AI Engineer", icon: Bot, subtitle: "LLM apps, RAG, guardrails", dashboard: "/ai-engineer/dashboard", agents: 6 },
-  { id: "agentic-engineer", label: "Agentic Engineer", icon: InfinityIcon, subtitle: "Autonomous agents, tool chains", dashboard: "/agents/marketplace", agents: 8 },
-  { id: "data-scientist", label: "Data Scientist", icon: ScatterChart, subtitle: "Model training and evaluation", dashboard: "/data-scientist/dashboard", agents: 7 },
-  { id: "app-engineer", label: "Platform Engineer", icon: Server, subtitle: "Services, GitOps, infrastructure", dashboard: "/app-engineer/dashboard", agents: 7 },
-  { id: "mlops", label: "MLOps Engineer", icon: RefreshCw, subtitle: "Pipelines, drift, retraining", dashboard: "/mlops/dashboard", agents: 6 },
-  { id: "security", label: "Security Engineer", icon: ShieldCheck, subtitle: "Policies, audit, compliance", dashboard: "/security/dashboard", agents: 7 },
-  { id: "data-engineer", label: "Data Engineer", icon: Database, subtitle: "Pipelines, datasets, lineage", dashboard: "/data-engineer/dashboard", agents: 7 },
-];
 
 const ACTION_ICONS: Record<string, LucideIcon> = {
   rocket: Rocket, type: Type, eye: Eye, play: Play, "git-branch": GitBranch, plug: Plug,
@@ -50,7 +32,7 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
 };
 
 const JOURNEY_ICONS: Record<string, LucideIcon> = {
-  robot: Bot, infinity: InfinityIcon, database: Database, refresh: RefreshCw, shield: ShieldCheck, server: Server,
+  robot: Bot, infinity: Bot, database: Database, refresh: RefreshCw, shield: ShieldCheck, server: Server,
 };
 
 const DOT_CLASS: Record<DotColor, string> = {
@@ -89,18 +71,14 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const Home = () => {
   const navigate = useNavigate();
-  const { persona, setPersona } = usePersona();
+  const { user, profile, personaMatch, directory, savedProfiles, signInAs, logout } = useAuth();
+  const persona = user!.persona;
   const journey = useJourney();
-
-  const activeTile = TILES.find((t) => t.id === persona) ?? TILES[0];
 
   const { data: quickActions } = useMockQuery(() => getQuickActions(persona), [persona]);
   const { data: activity, loading: activityLoading } = useMockQuery(() => getActivity(persona), [persona]);
   const { data: feed } = useMockQuery(() => getFeed(), []);
   const { data: journeys } = useMockQuery(() => getJourneys(), []);
-
-  const scrollToTiles = () =>
-    document.getElementById("persona-tiles")?.scrollIntoView({ behavior: "smooth" });
 
   const startJourney = (id: string) => {
     const url = journey.start(id);
@@ -109,58 +87,54 @@ const Home = () => {
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* SECTION 1 — persona tiles */}
-      <section id="persona-tiles">
+      {/* SECTION 1 — identity-driven workspace (no persona picker) */}
+      <section id="workspace">
         <SectionLabel>Your workspace</SectionLabel>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-7">
-          {TILES.map((t) => {
-            const Icon = t.icon;
-            const active = t.id === persona;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setPersona(t.id)}
-                title={t.subtitle}
-                className={cn(
-                  "group flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center transition-colors",
-                  active
-                    ? "border-brand-purple bg-brand-tint"
-                    : "border-border bg-card hover:border-brand-border"
-                )}
-              >
-                <Icon className={cn("h-5 w-5", active ? "text-brand-purple" : "text-muted-foreground")} />
-                <span className={cn("text-[11px] leading-tight", active ? "text-brand-purple font-medium" : "text-foreground/80")}>
-                  {t.label}
-                </span>
-                <span
-                  role="link"
-                  tabIndex={0}
-                  onClick={(e) => { e.stopPropagation(); navigate(`/agents/marketplace?persona=${t.id}`); }}
-                  className="text-[10px] text-muted-foreground hover:text-brand-purple"
+        <div className="rounded-2xl border border-brand-border bg-brand-tint/40 p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-purple/15 text-lg font-semibold text-brand-purple">
+              {employeeInitials(profile.name)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[15px]">
+                {greetingWord()}, <span className="font-semibold">{profile.name}</span>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {[profile.title, profile.team, profile.location].filter(Boolean).join(" · ")}
+              </div>
+
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-3 py-1 text-sm font-medium text-brand-purple">
+                <Sparkles className="h-3.5 w-3.5" />
+                Loaded the {personaMatch.label} workspace
+              </div>
+              <p className="mt-2 max-w-2xl text-[13px] text-muted-foreground">{personaMatch.reason}</p>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => navigate(dashboardForPersona(persona))}
+                  className="inline-flex items-center gap-1 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
                 >
-                  {t.agents} agents
-                </span>
-              </button>
-            );
-          })}
+                  Go to your {personaMatch.label} dashboard <ArrowRight className="h-3 w-3" />
+                </button>
+                <button
+                  onClick={() => navigate(`/${persona}/profile`)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-brand-border hover:text-brand-purple"
+                >
+                  <Pencil className="h-3 w-3" /> Edit profile
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => navigate(activeTile.dashboard)}
-          className="mt-2 inline-flex items-center gap-1 text-xs text-brand-purple hover:underline"
-        >
-          Go to {activeTile.label} dashboard <ArrowRight className="h-3 w-3" />
-        </button>
       </section>
 
       <div className="my-5 border-t border-border" />
 
-      {/* SECTION 2 — activity + quick actions (fades on persona change) */}
+      {/* SECTION 2 — activity + quick actions (fades on identity change) */}
       <section key={persona} className="animate-in fade-in duration-150">
         <div className="text-[15px] font-medium">
           {greetingWord()} — viewing as{" "}
-          <button onClick={scrollToTiles} className="text-brand-purple hover:underline">
-            {activeTile.label}
-          </button>
+          <span className="text-brand-purple">{personaMatch.label}</span>
         </div>
 
         {/* Quick actions */}
@@ -289,8 +263,30 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer — vendor comparison link */}
-      <div className="mt-6 border-t border-border pt-3 text-center">
+      {/* Footer — de-emphasized demo identity switch + vendor comparison link */}
+      <div className="mt-8 border-t border-border pt-3 space-y-2 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[10px] text-muted-foreground/70">
+          <span className="uppercase tracking-wide">Demo · viewing as {profile.name}</span>
+          <span aria-hidden>·</span>
+          {[...savedProfiles, ...directory].map((emp) => {
+            const active = emp.id === profile.id;
+            return (
+              <button
+                key={emp.id}
+                onClick={() => signInAs(emp.id)}
+                title={`${emp.name} — ${emp.title}`}
+                className={cn(
+                  "rounded px-1 py-0.5 hover:text-brand-purple",
+                  active ? "font-semibold text-brand-purple" : "text-muted-foreground/70"
+                )}
+              >
+                {employeeInitials(emp.name)}
+              </button>
+            );
+          })}
+          <span aria-hidden>·</span>
+          <button onClick={() => { logout(); navigate("/"); }} className="hover:text-brand-purple">log out</button>
+        </div>
         <button
           onClick={() => navigate("/compare")}
           className="text-xs text-muted-foreground hover:text-brand-purple hover:underline"

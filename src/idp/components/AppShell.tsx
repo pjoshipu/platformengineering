@@ -28,7 +28,7 @@ const Breadcrumbs = ({ personaId }: { personaId?: string }) => {
       {persona && (
         <>
           <ChevronRight className="h-3 w-3" />
-          <Link to={`/${persona.id}/dashboard`} className="hover:text-brand-purple">{persona.label}</Link>
+          <Link to={`/${persona.id}/${persona.nav[0]?.path ?? "dashboard"}`} className="hover:text-brand-purple">{persona.label}</Link>
         </>
       )}
       <ChevronRight className="h-3 w-3" />

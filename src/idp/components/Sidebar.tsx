@@ -1,14 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { PanelLeftClose, PanelLeftOpen, Home, ChevronsUpDown, ArrowRight } from "lucide-react";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
-  DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { PanelLeftClose, PanelLeftOpen, Home, ArrowRight } from "lucide-react";
 import type { PersonaModule, IdpNavItem } from "../types";
 import { usePreferences } from "../preferences";
 import { useAuth } from "@/contexts/AuthContext";
-import { PERSONA_MODULES } from "../personas/registry";
 import { useJourney } from "../state/journey";
 
 interface SidebarProps {
@@ -31,7 +26,7 @@ const GROUP_ORDER = [
 export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
   const PersonaIcon = persona?.icon;
   const { isHidden } = usePreferences();
-  const { setPersona } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const journey = useJourney();
 
@@ -56,46 +51,23 @@ export const Sidebar = ({ persona, collapsed, onToggle }: SidebarProps) => {
         collapsed ? "w-16" : "w-60"
       )}
     >
-      {/* Persona switcher (shared "idp_persona" state) */}
+      {/* Workspace badge — auto-detected from the signed-in identity (read-only). */}
       <div className="p-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className={cn(
-                "flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 hover:border-brand-border",
-                collapsed && "justify-center px-2"
-              )}
-              title={collapsed ? persona?.label : undefined}
-            >
-              {PersonaIcon && <PersonaIcon className="w-4 h-4 text-brand-purple shrink-0" />}
-              {!collapsed && (
-                <>
-                  <span className="min-w-0 flex-1 text-left">
-                    <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">Workspace</span>
-                    <span className="block font-medium truncate">{persona?.label}</span>
-                  </span>
-                  <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                </>
-              )}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuLabel>Switch persona</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {PERSONA_MODULES.map((p) => {
-              const Icon = p.icon;
-              return (
-                <DropdownMenuItem
-                  key={p.id}
-                  onClick={() => { setPersona(p.id); navigate(`/${p.id}/dashboard`); }}
-                  className={cn(persona?.id === p.id && "text-brand-purple")}
-                >
-                  <Icon className="w-4 h-4 mr-2" /> {p.label}
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div
+          className={cn(
+            "flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2",
+            collapsed && "justify-center px-2"
+          )}
+          title={collapsed ? persona?.label : `${persona?.label} · auto-detected for ${profile.name}`}
+        >
+          {PersonaIcon && <PersonaIcon className="w-4 h-4 text-brand-purple shrink-0" />}
+          {!collapsed && (
+            <span className="min-w-0 flex-1 text-left">
+              <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">Workspace · auto-detected</span>
+              <span className="block font-medium truncate">{persona?.label}</span>
+            </span>
+          )}
+        </div>
       </div>
 
       <nav className="flex-1 px-2 py-1 overflow-y-auto">

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Boxes, Bell, Search, Settings, User, LogOut, Repeat } from "lucide-react";
+import { Boxes, Bell, Search, Settings, User, LogOut, Repeat, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAuth } from "@/contexts/AuthContext";
 import { useMockQuery, timeAgo } from "../api/client";
 import { getNotifications, globalSearch } from "../api/common";
-import { getPersonaModule, PERSONA_MODULES } from "../personas/registry";
+import { getPersonaModule } from "../personas/registry";
 import { cn } from "@/lib/utils";
 
 const SEVERITY_DOT: Record<string, string> = {
@@ -38,7 +38,7 @@ const readRecents = (): string[] => {
 
 export const TopHeader = () => {
   const navigate = useNavigate();
-  const { user, setPersona } = useAuth();
+  const { user, profile, personaMatch, directory, savedProfiles, signInAs, logout } = useAuth();
   const persona = user ? getPersonaModule(user.persona) : undefined;
   const { data: notifications } = useMockQuery(getNotifications, []);
   const unread = notifications?.filter((n) => !n.read).length ?? 0;
@@ -184,7 +184,10 @@ export const TopHeader = () => {
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="font-normal">
             <div className="font-medium">{user?.name}</div>
-            <div className="text-xs text-muted-foreground">{persona?.blurb}</div>
+            <div className="text-xs text-muted-foreground">{profile.title}</div>
+            <div className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-brand-purple">
+              <Repeat className="w-3 h-3" /> {personaMatch.label} workspace · auto-detected
+            </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => user && navigate(`/${user.persona}/profile`)}>
@@ -195,23 +198,25 @@ export const TopHeader = () => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            <span className="flex items-center gap-1"><Repeat className="w-3 h-3" /> Switch persona</span>
+            <span className="flex items-center gap-1"><Repeat className="w-3 h-3" /> Switch profile</span>
           </DropdownMenuLabel>
-          {PERSONA_MODULES.map((p) => {
-            const Icon = p.icon;
+          {[...savedProfiles, ...directory].map((emp) => {
+            const active = emp.id === profile.id;
             return (
               <DropdownMenuItem
-                key={p.id}
-                onClick={() => { setPersona(p.id); navigate(`/${p.id}/dashboard`); }}
-                className={cn(user?.persona === p.id && "text-brand-purple")}
+                key={emp.id}
+                onClick={() => { signInAs(emp.id); navigate("/"); }}
+                className={cn(active && "text-brand-purple")}
               >
-                <Icon className="w-4 h-4 mr-2" /> {p.label}
+                {active ? <Check className="w-4 h-4 mr-2" /> : <User className="w-4 h-4 mr-2 opacity-60" />}
+                <span className="flex-1 truncate">{emp.name}</span>
+                <span className="ml-2 text-[10px] text-muted-foreground truncate">{emp.title}</span>
               </DropdownMenuItem>
             );
           })}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/")}>
-            <LogOut className="w-4 h-4 mr-2" /> Home
+          <DropdownMenuItem onClick={() => { logout(); navigate("/"); }}>
+            <LogOut className="w-4 h-4 mr-2" /> Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

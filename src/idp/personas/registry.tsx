@@ -31,6 +31,7 @@ import appEngineer from "./app-engineer";
 import mlops from "./mlops";
 import security from "./security";
 import dataEngineer from "./data-engineer";
+import adminModule from "./admin";
 
 /**
  * Shared capability ROUTES injected for every persona (screens from
@@ -127,14 +128,19 @@ const withSharedScreens = (m: PersonaModule): PersonaModule => {
  * persona: create personas/<id>/ exporting a PersonaModule and add it here.
  */
 export const PERSONA_MODULES: PersonaModule[] = [
-  aiEngineer,
-  agenticEngineer,
-  dataScientist,
-  appEngineer,
-  mlops,
-  security,
-  dataEngineer,
-].map(withSharedScreens);
+  ...[
+    aiEngineer,
+    agenticEngineer,
+    dataScientist,
+    appEngineer,
+    mlops,
+    security,
+    dataEngineer,
+  ].map(withSharedScreens),
+  // Admin is a cross-cutting console; it does NOT receive the shared capability
+  // screens, so it is appended after the map.
+  adminModule,
+];
 
 export const getPersonaModule = (id: string) =>
   PERSONA_MODULES.find((p) => p.id === id);

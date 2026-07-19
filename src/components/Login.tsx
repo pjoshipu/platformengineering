@@ -4,29 +4,29 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LogIn, Boxes } from 'lucide-react';
+import { LogIn, Boxes, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { PERSONA_MODULES } from '@/idp/personas/registry';
+import { EMPLOYEES, getEmployee } from '@/idp/identity/directory';
+import { resolvePersona, dashboardForPersona } from '@/idp/identity/resolvePersona';
 
 /**
- * Persona-based login. Choosing an experience logs you in as that persona and
- * drops you straight into the IDP scoped to your role — you only see your own
- * screens (plus the Agentic Experience curated for that role).
+ * Identity-based sign-in. You choose a *person* (as SSO would identify you) —
+ * not a role. The platform derives the persona from their profile and drops you
+ * into the matching workspace.
  */
 const Login = () => {
-  const { login } = useAuth();
+  const { signInAs } = useAuth();
   const navigate = useNavigate();
-  const [selectedPersona, setSelectedPersona] = useState<string>('');
+  const [selectedId, setSelectedId] = useState<string>('');
+
+  const selected = selectedId ? getEmployee(selectedId) : undefined;
+  const match = selected ? resolvePersona(selected) : undefined;
 
   const handleLogin = () => {
-    const persona = PERSONA_MODULES.find((p) => p.id === selectedPersona);
-    if (!persona) return;
-    login({ persona: persona.id, name: persona.label });
-    const first = persona.nav[0]?.path ?? 'dashboard';
-    navigate(`/${persona.id}/${first}`);
+    if (!selected || !match) return;
+    signInAs(selected.id);
+    navigate(dashboardForPersona(match.personaId));
   };
-
-  const selected = PERSONA_MODULES.find((p) => p.id === selectedPersona);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -39,42 +39,37 @@ const Login = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold">Platform IDP</h1>
-            <p className="text-muted-foreground">Choose your experience to sign in</p>
+            <p className="text-muted-foreground">Sign in — we detect your workspace from your profile</p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="persona">Experience</Label>
-              <Select value={selectedPersona} onValueChange={setSelectedPersona}>
-                <SelectTrigger id="persona" className="mt-2">
-                  <SelectValue placeholder="Select your role…" />
+              <Label htmlFor="identity">Who are you?</Label>
+              <Select value={selectedId} onValueChange={setSelectedId}>
+                <SelectTrigger id="identity" className="mt-2">
+                  <SelectValue placeholder="Select your name…" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PERSONA_MODULES.map((persona) => {
-                    const Icon = persona.icon;
-                    return (
-                      <SelectItem key={persona.id} value={persona.id}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="w-4 h-4 text-primary" />
-                          <div>
-                            <div className="font-semibold">{persona.label}</div>
-                            <div className="text-xs text-muted-foreground">{persona.blurb}</div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
+                  {EMPLOYEES.map((emp) => (
+                    <SelectItem key={emp.id} value={emp.id}>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">{emp.name}</span>
+                        <span className="text-xs text-muted-foreground">{emp.title} · {emp.team}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {selected && (
-              <p className="text-xs text-muted-foreground">
-                You'll land in the {selected.label} workspace with an Agentic Experience tailored to that role.
+            {match && (
+              <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                {match.reason}
               </p>
             )}
 
-            <Button onClick={handleLogin} disabled={!selectedPersona} className="w-full" size="lg">
+            <Button onClick={handleLogin} disabled={!selected} className="w-full" size="lg">
               <LogIn className="w-4 h-4 mr-2" />
               Enter Platform
             </Button>
